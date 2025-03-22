@@ -692,6 +692,51 @@
             max-width: none;
             max-height: none;
         }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "header"
+                    "content"
+                    "sidebar";
+            }
+            
+            .sidebar {
+                max-height: 300px;
+                overflow-y: auto;
+            }
+            
+            .control-panel {
+                margin-bottom: 10px;
+            }
+            
+            .control-group {
+                margin-bottom: 8px;
+            }
+            
+            .canvas-container {
+                height: 50vh;
+            }
+            
+            /* Make controls more touch-friendly */
+            input[type="range"] {
+                height: 25px;
+            }
+            
+            select, button {
+                min-height: 36px;
+                padding: 8px;
+            }
+            
+            /* Ensure the hide controls button is easily accessible */
+            #hideControlsButton {
+                width: 44px;
+                height: 44px;
+                font-size: 28px;
+            }
+        }
     </style>
 </head>
 <body>

@@ -167,8 +167,17 @@ document.addEventListener('DOMContentLoaded', () => {
             // Request camera access
             const constraints = {
                 video: cameraId 
-                    ? { deviceId: { exact: cameraId }, width: { ideal: 1280 }, height: { ideal: 720 } }
-                    : { width: { ideal: 1280 }, height: { ideal: 720 } }
+                    ? { 
+                        deviceId: { exact: cameraId },
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'environment' // Prefer rear camera on mobile
+                    }
+                    : { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'environment' // Prefer rear camera on mobile
+                    }
             };
             
             console.log('Camera constraints:', JSON.stringify(constraints));
@@ -208,7 +217,49 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error('Error starting camera capture:', error);
-            alert(`Failed to access camera: ${error.message}. Please ensure you have a camera connected and have granted permission.`);
+            
+            // More user-friendly error message with mobile-specific guidance
+            let errorMessage = 'Failed to access camera: ' + error.message;
+            
+            // Add specific guidance for common mobile issues
+            if (error.name === 'NotAllowedError') {
+                errorMessage += '\n\nPlease ensure you have granted camera permission to this website. On most mobile devices, you can check this in your browser settings.';
+            } else if (error.name === 'NotReadableError') {
+                errorMessage += '\n\nYour camera may be in use by another application. Please close other apps that might be using the camera and try again.';
+            } else if (error.name === 'OverconstrainedError') {
+                errorMessage += '\n\nYour device does not support the requested camera resolution. Reloading the page may help.';
+                
+                // Automatically retry with lower constraints
+                console.log('Retrying with lower resolution constraints...');
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { 
+                            facingMode: 'environment',
+                            width: { ideal: 320 },
+                            height: { ideal: 240 }
+                        }
+                    });
+                    
+                    video.srcObject = stream;
+                    await video.play();
+                    
+                    // Update UI
+                    isCapturing = true;
+                    startButton.disabled = true;
+                    stopButton.disabled = false;
+                    
+                    // Start the capture loop
+                    console.log('Starting capture loop with lower resolution');
+                    animationFrame = requestAnimationFrame(captureLoop);
+                    
+                    return; // Exit the function if the retry succeeded
+                } catch (retryError) {
+                    console.error('Error during retry with lower resolution:', retryError);
+                    errorMessage += '\n\nRetry with lower resolution also failed.';
+                }
+            }
+            
+            alert(errorMessage);
         }
     }
     
