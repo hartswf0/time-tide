@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎥 Adobe Killer Slit-Scan Camera</title>
+    <style>
+        :root {
+            --primary-color: #2a2a2a;
+            --secondary-color: #3a3a3a;
+            --accent-color: #ff5722;
+            --text-color: #f0f0f0;
+            --border-color: #444;
+            --slider-track: #555;
+            --slider-thumb: #ff5722;
+            --panel-bg: rgba(40, 40, 40, 0.9);
+            --highlight-color: #ffeb3b;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            grid-template-rows: auto 1fr;
+            grid-template-areas: 
+                "header header"
+                "sidebar content";
+            height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        .container.fullscreen {
+            grid-template-columns: 0 1fr;
+        }
+        
+        .container.fullscreen .sidebar {
+            transform: translateX(-380px);
+        }
+        
+        header {
+            grid-area: header;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .preset-system {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .preset-select {
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: 0.8rem;
+            min-width: 120px;
+        }
+        
+        .preset-btn {
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .preset-btn:hover {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            background-color: #ff7043;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        button.secondary {
+            background-color: #555;
+        }
+        
+        button.secondary:hover {
+            background-color: #666;
+        }
+        
+        button:disabled {
+            background-color: #777;
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .fullscreen-btn {
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+        
+        .fullscreen-btn:hover {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+        }
+        
+        .sidebar {
+            grid-area: sidebar;
+            background-color: var(--secondary-color);
+            padding: 10px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+            z-index: 5;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 8px;
+            align-content: start;
+        }
+        
+        .sidebar-section {
+            grid-column: span 2;
+        }
+        
+        .control-panel {
+            margin-bottom: 8px;
+            background-color: var(--panel-bg);
+            border-radius: 6px;
+            padding: 6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            border-left: 2px solid var(--accent-color);
+        }
+        
+        .control-panel h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 3px;
+            color: var(--accent-color);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .control-group {
+            margin-bottom: 4px;
+            padding: 3px 4px;
+            border-radius: 4px;
+            background-color: rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s ease;
+        }
+        
+        .control-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1px;
+            font-weight: 500;
+            color: var(--highlight-color);
+            font-size: 0.8rem;
+        }
+        
+        .control-value {
+            display: inline-block;
+            min-width: 20px;
+            text-align: right;
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 0 3px;
+            border-radius: 2px;
+            margin-left: 3px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .slider-container input[type="range"] {
+            flex: 1;
+            margin: 0;
+        }
+        
+        .checkbox-group {
+            margin-bottom: 4px;
+            padding: 3px 4px;
+            border-radius: 4px;
+            background-color: rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s ease;
+        }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: var(--highlight-color);
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        
+        .info-panel {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 6px;
+            padding: 6px;
+            margin-top: 8px;
+            border-left: 2px solid var(--highlight-color);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            grid-column: span 2;
+        }
+        
+        .info-panel h3 {
+            margin-top: 0;
+            margin-bottom: 3px;
+            color: var(--highlight-color);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 3px;
+        }
+        
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px;
+            border-radius: 2px;
+            background-color: rgba(255, 255, 255, 0.05);
+            font-size: 0.7rem;
+        }
+        
+        .content {
+            grid-area: content;
+            position: relative;
+            overflow: hidden;
+            background-color: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .video-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 200px;
+            height: 150px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 2;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--accent-color);
+        }
+        
+        .sediment-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .video-preview {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 200px;
+            height: 150px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 2;
+            opacity: 0.7;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--accent-color);
+            transform: scale(1);
+        }
+        
+        .video-preview:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        
+        .video-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .control-value {
+            display: inline-block;
+            min-width: 30px;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 10px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: #444;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        select:hover {
+            border-color: var(--accent-color);
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.3);
+        }
+        
+        option {
+            background-color: #333;
+            color: var(--text-color);
+            padding: 8px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--slider-track);
+            border-radius: 3px;
+            outline: none;
+            margin: 10px 0;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--slider-thumb);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #ff7043;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--slider-thumb);
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            background: #ff7043;
+        }
+        
+        .fullscreen-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .fullscreen-button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .fullscreen-icon {
+            width: 20px;
+            height: 20px;
+            position: relative;
+        }
+        
+        .fullscreen-icon:before,
+        .fullscreen-icon:after {
+            content: '';
+            position: absolute;
+            background-color: white;
+        }
+        
+        .fullscreen-icon:before {
+            width: 20px;
+            height: 2px;
+            top: 9px;
+            left: 0;
+        }
+        
+        .fullscreen-icon:after {
+            width: 2px;
+            height: 20px;
+            top: 0;
+            left: 9px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr;
+                grid-template-areas: 
+                    "header"
+                    "sidebar"
+                    "content";
+            }
+            
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+        }
+        
+        .slit-indicator {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background-color: rgba(255, 0, 0, 0.5);
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 4px;
+            cursor: help;
+        }
+        
+        .tooltip .info-icon {
+            display: inline-flex;
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            opacity: 0.6;
+        }
+        
+        .tooltip:hover .info-icon {
+            background-color: #ff7043;
+            transform: scale(1.5);
+            opacity: 1;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 8px 10px;
+            position: absolute;
+            z-index: 10;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            line-height: 1.4;
+            border-left: 2px solid var(--accent-color);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <header>
+            <div class="header-title">
+                <span>🎥 Adobe Killer Slit-Scan Camera</span>
+            </div>
+            <div class="header-controls">
+                <div class="preset-system">
+                    <select id="presetSelect" class="preset-select">
+                        <option value="">SELECT PRESET</option>
+                    </select>
+                    <button id="savePresetBtn" class="preset-btn" title="Save current settings as a new preset">
+                        💾 SAVE
+                    </button>
+                    <button id="exportPresetsBtn" class="preset-btn" title="Export all presets to a file">
+                        📤 EXP
+                    </button>
+                    <button id="importPresetsBtn" class="preset-btn" title="Import presets from a file">
+                        📥 IMP
+                    </button>
+                </div>
+                <button id="fullscreenToggle" class="fullscreen-btn" title="Toggle fullscreen mode">
+                    🔍
+                </button>
+                <div class="button-group">
+                    <button id="startButton">▶️ Start</button>
+                    <button id="stopButton" class="secondary">⏹️ Stop</button>
+                    <button id="exportButton" class="secondary">💾 Exp</button>
+                </div>
+            </div>
+        </header>
+        
+        <div class="sidebar">
+            <!-- Basic Controls Panel -->
+            <div class="control-panel">
+                <h3>🎛️ BASIC</h3>
+                
+                <div class="control-group">
+                    <label class="control-label" for="cameraSelect">📷 CAM
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Select which camera to use for capturing. Change this if the default camera isn't working.</div>
+                        </div>
+                    </label>
+                    <select id="cameraSelect">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="slitWidth">📏 WIDTH
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Controls the width of the sampling slit from the camera feed. Wider slits capture more information but may reduce detail.</div>
+                        </div>
+                        <span class="control-value" id="slitWidthValue">5</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="slitWidth" min="1" max="200" value="5" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="scanSpeed">⚡ SPEED
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Determines how quickly the system samples new slits. Higher values create faster sediment accumulation.</div>
+                        </div>
+                        <span class="control-value" id="scanSpeedValue">10</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="scanSpeed" min="1" max="50" value="10" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="highlightCurrentCheckbox">🔍 HIGHLIGHT
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Highlights the most recently added sediment layer with a red outline.</div>
+                        </div>
+                    </label>
+                    <input type="checkbox" id="highlightCurrentCheckbox" checked>
+                </div>
+            </div>
+            
+            <!-- View Options Panel -->
+            <div class="control-panel">
+                <h3>👁️ VIEW</h3>
+                
+                <div class="control-group">
+                    <label class="control-label" for="wavePatternToggle">〰️ WAVES
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Displays a wave pattern background behind the sediment layers.</div>
+                        </div>
+                    </label>
+                    <input type="checkbox" id="wavePatternToggle">
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="viewMode">🖼️ MODE
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Switch between different visualization modes to see your data in new ways.</div>
+                        </div>
+                    </label>
+                    <select id="viewMode">
+                        <option value="normal">🖼️ NORMAL</option>
+                        <option value="heatmap">🔥 HEAT</option>
+                        <option value="wireframe">📐 WIRE</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Sediment Controls Panel -->
+            <div class="control-panel">
+                <h3>🌊 SEDIMENT</h3>
+                
+                <div class="control-group">
+                    <label class="control-label" for="tidalFactor">🌊 TIDAL
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Influences the wave-like movement of sediment layers. Higher values create more pronounced tidal effects.</div>
+                        </div>
+                        <span class="control-value" id="tidalFactorValue">50</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="tidalFactor" min="0" max="100" value="50" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="waveEnergy">💨 WAVES
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Controls the intensity of wave patterns in the visualization. Higher values create more dynamic wave effects.</div>
+                        </div>
+                        <span class="control-value" id="waveEnergyValue">70</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="waveEnergy" min="0" max="100" value="70" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="erosionThreshold">🏜️ EROSION
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Determines how easily layers erode based on motion. Lower values make layers more susceptible to erosion.</div>
+                        </div>
+                        <span class="control-value" id="erosionThresholdValue">10</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="erosionThreshold" min="0" max="50" value="10" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="compactionRate">🗜️ COMPACT
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Controls how quickly layers compress over time. Zero means no compaction, preserving original layer thickness.</div>
+                        </div>
+                        <span class="control-value" id="compactionRateValue">10</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="compactionRate" min="0" max="50" value="10" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="organicFactor">🌱 ORGANIC
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Adds natural, organic variations to layer movement and appearance. Higher values create more organic-looking results.</div>
+                        </div>
+                        <span class="control-value" id="organicFactorValue">50</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="organicFactor" min="0" max="100" value="50" step="1">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Layering Controls Panel - First Column -->
+            <div class="control-panel">
+                <h3>📚 LAYERS</h3>
+                
+                <div class="control-group">
+                    <label class="control-label" for="layeringMode">🔄 TYPE
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Different ways to stack and arrange sediment layers. Each mode creates a unique visual effect.</div>
+                        </div>
+                    </label>
+                    <select id="layeringMode">
+                        <option value="standard">📊 STD</option>
+                        <option value="overlap">🔄 OVER</option>
+                        <option value="stacked">📚 STACK</option>
+                        <option value="wave">〰️ WAVE</option>
+                        <option value="reverse">⏮️ REV</option>
+                        <option value="random">🎲 RAND</option>
+                        <option value="intensity">📈 INT</option>
+                        <option value="stratigraphy">🏞️ STRAT</option>
+                        <option value="brickwork">🧱 BRICK</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="layerSpacing">↕️ SPACE
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Controls the space between layers. Lower values create denser, more compact visualizations.</div>
+                        </div>
+                        <span class="control-value" id="layerSpacingValue">20</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="layerSpacing" min="0" max="100" value="20" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="layerOffset">↔️ OFFSET
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Controls the horizontal offset between layers. Creates staggered or cascading effects.</div>
+                        </div>
+                        <span class="control-value" id="layerOffsetValue">0</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="layerOffset" min="0" max="100" value="0" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="layerOpacity">👁️ OPACITY
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Fine-tune the transparency of individual layers. Lower values create more transparent, ethereal effects.</div>
+                        </div>
+                        <span class="control-value" id="layerOpacityValue">80</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="layerOpacity" min="0" max="100" value="80" step="1">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Layering Controls Panel - Second Column -->
+            <div class="control-panel">
+                <h3>🎨 FX</h3>
+                
+                <div class="control-group">
+                    <label class="control-label" for="blendMode">🎨 BLEND
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">How layers blend with each other visually. Different modes create different color and texture effects.</div>
+                        </div>
+                    </label>
+                    <select id="blendMode">
+                        <option value="normal">🔳 NORM</option>
+                        <option value="multiply">✖️ MULT</option>
+                        <option value="screen">📺 SCRN</option>
+                        <option value="overlay">🔶 OVER</option>
+                        <option value="darken">🌑 DARK</option>
+                        <option value="lighten">🌕 LITE</option>
+                        <option value="organic-flow">🌊 FLOW</option>
+                        <option value="erosion-blend">🏜️ EROS</option>
+                        <option value="wave-distort">〰️ DIST</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="colorShift">🌈 COLOR
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Controls color transformations between layers. Higher values create more dramatic color cycling effects.</div>
+                        </div>
+                        <span class="control-value" id="colorShiftValue">0</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="colorShift" min="0" max="100" value="0" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="layerDistortion">🌀 DISTORT
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Adds organic distortion to layer shapes. Higher values create more fluid, natural-looking forms.</div>
+                        </div>
+                        <span class="control-value" id="layerDistortionValue">0</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="layerDistortion" min="0" max="100" value="0" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="layerBlur">🌫️ BLUR
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Applies a blur effect to layers. Creates dreamy, atmospheric effects at higher values.</div>
+                        </div>
+                        <span class="control-value" id="layerBlurValue">0</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="layerBlur" min="0" max="20" value="0" step="0.5">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Experimental HYPERCLAY Panel -->
+            <div class="control-panel">
+                <h3>🧪 HYPERCLAY</h3>
+                
+                <div class="control-group">
+                    <label class="control-label" for="temporalWarp">⏳ TEMPORAL WARP
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Warps the time dimension of layers. Higher values create non-linear temporal effects where newer layers can appear before older ones.</div>
+                        </div>
+                        <span class="control-value" id="temporalWarpValue">0</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="temporalWarp" min="0" max="100" value="0" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="dimensionalFold">🌀 DIMENSION FOLD
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Creates folding effects where layers appear to bend into higher dimensions. Produces mind-bending visual artifacts.</div>
+                        </div>
+                        <span class="control-value" id="dimensionalFoldValue">0</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="dimensionalFold" min="0" max="100" value="0" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="quantumNoise">✨ QUANTUM NOISE
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Adds probability-based noise that changes based on observation. Creates unpredictable, emergent patterns in the visualization.</div>
+                        </div>
+                        <span class="control-value" id="quantumNoiseValue">0</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="quantumNoise" min="0" max="100" value="0" step="1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="realityMode">🌌 REALITY MODE
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Changes how the system interprets reality. Different modes create fundamentally different interpretations of the same input data.</div>
+                        </div>
+                    </label>
+                    <select id="realityMode">
+                        <option value="consensus">🧠 CONSENSUS</option>
+                        <option value="quantum">⚛️ QUANTUM</option>
+                        <option value="dream">💭 DREAM</option>
+                        <option value="hyperreal">🔮 HYPERREAL</option>
+                        <option value="glitch">🔥 GLITCH</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="feedbackLoop">🔄 FEEDBACK LOOP
+                        <div class="tooltip">
+                            <div class="info-icon"></div>
+                            <div class="tooltip-text">Creates recursive feedback where the output is fed back into the input. Creates fractal-like patterns and strange attractors.</div>
+                        </div>
+                        <span class="control-value" id="feedbackLoopValue">0</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="feedbackLoop" min="0" max="100" value="0" step="1">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics Panel -->
+            <div class="info-panel">
+                <h3>📊 STATS</h3>
+                <div class="stats-grid">
+                    <div class="stats-item">
+                        <span class="stats-label">LAYERS:</span>
+                        <span id="layerCount">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">AGE:</span>
+                        <span id="oldestLayerAge">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">MOTION:</span>
+                        <span id="averageMotion">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">PHASE:</span>
+                        <span id="wavePhase">0°</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">CYCLE:</span>
+                        <span id="tidalCycle">0°</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">MODE:</span>
+                        <span id="layeringModeDisplay">std</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">BLEND:</span>
+                        <span id="blendModeDisplay">norm</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">SHIFT:</span>
+                        <span id="colorShiftDisplay">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="canvas-container">
+                <canvas id="sedimentCanvas"></canvas>
+                <div class="video-preview">
+                    <video id="video" autoplay muted playsinline></video>
+                    <div id="slitIndicator" class="slit-indicator"></div>
+                </div>
+                <div class="fullscreen-button" id="fullscreenButton">
+                    <div class="fullscreen-icon"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let cameraStream = null;
+        let videoElement = null;
+        let slitCanvas = null;
+        let slitCtx = null;
+        let sedimentCanvas = null;
+        let sedimentCtx = null;
+        let slitPosition = 0;
+        let slitWidth = 1;
+        let slitSpeed = 1;
+        let highlightCurrent = true;
+        let showWavePattern = false;
+        let tidalFactor = 50;
+        let waveEnergy = 50;
+        let erosionThreshold = 50;
+        let compactionRate = 50;
+        let organicFactor = 50;
+        let layeringMode = 'standard';
+        let blendMode = 'normal';
+        let colorShift = 0;
+        let layerOpacity = 100;
+        let layerSpacing = 0;
+        let layerOffset = 0;
+        let layerDistortion = 0;
+        let layerBlur = 0;
+        
+        // HYPERCLAY experimental controls
+        let temporalWarp = 0;
+        let dimensionalFold = 0;
+        let quantumNoise = 0;
+        let realityMode = 'consensus';
+        let feedbackLoop = 0;
+        
+        // Animation loop
+        function animate() {
+            // Clear the sediment canvas
+            sedimentCtx.clearRect(0, 0, sedimentCanvas.width, sedimentCanvas.height);
+            
+            // Render the sediment layers
+            sedimentProcessor.renderLayers(sedimentCtx, sedimentCanvas.width, sedimentCanvas.height, {
+                showWireframe: false,
+                highlightCurrent,
+                tidalFactor,
+                waveEnergy,
+                showWavePattern,
+                layeringMode,
+                blendMode,
+                layerSpacing,
+                layerOffset,
+                layerDistortion,
+                layerBlur,
+                // Add HYPERCLAY parameters
+                temporalWarp,
+                dimensionalFold,
+                quantumNoise,
+                realityMode,
+                feedbackLoop
+            });
+            
+            // Update stats
+            document.getElementById('layerCount').textContent = sedimentProcessor.layers.length;
+            if (sedimentProcessor.layers.length > 0) {
+                const currentLayer = sedimentProcessor.layers[sedimentProcessor.currentLayerIndex];
+                document.getElementById('layerAge').textContent = Math.floor((Date.now() - currentLayer.timestamp) / 1000);
+                document.getElementById('layerMotion').textContent = Math.floor(currentLayer.motion);
+                document.getElementById('frameRate').textContent = Math.floor(frameRate * 10) / 10;
+            }
+            
+            // Request next frame
+            requestAnimationFrame(animate);
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize camera
+            initCamera();
+            
+            // Initialize preset system
+            updatePresetSelect();
+            
+            // Set up event listeners for preset system
+            document.getElementById('presetSelect').addEventListener('change', (e) => {
+                if (e.target.value) {
+                    loadPreset(e.target.value);
+                }
+            });
+            
+            document.getElementById('savePresetBtn').addEventListener('click', saveCurrentPreset);
+            document.getElementById('exportPresetsBtn').addEventListener('click', exportPresets);
+            document.getElementById('importPresetsBtn').addEventListener('click', importPresets);
+            
+            // Set up fullscreen toggle
+            document.getElementById('fullscreenToggle').addEventListener('click', toggleFullscreen);
+            
+            // Set up control event listeners
+            document.getElementById('slitWidth').addEventListener('input', (e) => {
+                slitWidth = parseInt(e.target.value);
+                document.getElementById('slitWidthValue').textContent = slitWidth;
+            });
+            
+            document.getElementById('scanSpeed').addEventListener('input', (e) => {
+                slitSpeed = parseInt(e.target.value);
+                document.getElementById('scanSpeedValue').textContent = slitSpeed;
+            });
+            
+            document.getElementById('highlightCurrentCheckbox').addEventListener('change', (e) => {
+                highlightCurrent = e.target.checked;
+            });
+            
+            document.getElementById('tidalFactor').addEventListener('input', (e) => {
+                tidalFactor = parseInt(e.target.value);
+                document.getElementById('tidalFactorValue').textContent = tidalFactor;
+            });
+            
+            document.getElementById('waveEnergy').addEventListener('input', (e) => {
+                waveEnergy = parseInt(e.target.value);
+                document.getElementById('waveEnergyValue').textContent = waveEnergy;
+            });
+            
+            document.getElementById('erosionThreshold').addEventListener('input', (e) => {
+                erosionThreshold = parseInt(e.target.value);
+                document.getElementById('erosionThresholdValue').textContent = erosionThreshold;
+            });
+            
+            document.getElementById('compactionRate').addEventListener('input', (e) => {
+                compactionRate = parseInt(e.target.value);
+                document.getElementById('compactionRateValue').textContent = compactionRate;
+            });
+            
+            document.getElementById('organicFactor').addEventListener('input', (e) => {
+                organicFactor = parseInt(e.target.value);
+                document.getElementById('organicFactorValue').textContent = organicFactor;
+            });
+            
+            document.getElementById('layeringMode').addEventListener('change', (e) => {
+                layeringMode = e.target.value;
+                document.getElementById('layeringModeDisplay').textContent = layeringMode.substring(0, 4);
+            });
+            
+            document.getElementById('blendMode').addEventListener('change', (e) => {
+                blendMode = e.target.value;
+                document.getElementById('blendModeDisplay').textContent = blendMode.substring(0, 4);
+            });
+            
+            document.getElementById('colorShift').addEventListener('input', (e) => {
+                colorShift = parseInt(e.target.value);
+                document.getElementById('colorShiftValue').textContent = colorShift;
+                document.getElementById('colorShiftDisplay').textContent = colorShift;
+            });
+            
+            document.getElementById('layerOpacity').addEventListener('input', (e) => {
+                layerOpacity = parseInt(e.target.value);
+                document.getElementById('layerOpacityValue').textContent = layerOpacity;
+            });
+            
+            document.getElementById('layerSpacing').addEventListener('input', (e) => {
+                layerSpacing = parseInt(e.target.value);
+                document.getElementById('layerSpacingValue').textContent = layerSpacing;
+            });
+            
+            document.getElementById('layerOffset').addEventListener('input', (e) => {
+                layerOffset = parseInt(e.target.value);
+                document.getElementById('layerOffsetValue').textContent = layerOffset;
+            });
+            
+            document.getElementById('layerDistortion').addEventListener('input', (e) => {
+                layerDistortion = parseInt(e.target.value);
+                document.getElementById('layerDistortionValue').textContent = layerDistortion;
+            });
+            
+            document.getElementById('layerBlur').addEventListener('input', (e) => {
+                layerBlur = parseFloat(e.target.value);
+                document.getElementById('layerBlurValue').textContent = layerBlur;
+            });
+            
+            document.getElementById('wavePatternToggle').addEventListener('change', (e) => {
+                showWavePattern = e.target.checked;
+            });
+            
+            // HYPERCLAY experimental controls
+            document.getElementById('temporalWarp').addEventListener('input', (e) => {
+                temporalWarp = parseInt(e.target.value);
+                document.getElementById('temporalWarpValue').textContent = temporalWarp;
+            });
+            
+            document.getElementById('dimensionalFold').addEventListener('input', (e) => {
+                dimensionalFold = parseInt(e.target.value);
+                document.getElementById('dimensionalFoldValue').textContent = dimensionalFold;
+            });
+            
+            document.getElementById('quantumNoise').addEventListener('input', (e) => {
+                quantumNoise = parseInt(e.target.value);
+                document.getElementById('quantumNoiseValue').textContent = quantumNoise;
+            });
+            
+            document.getElementById('realityMode').addEventListener('change', (e) => {
+                realityMode = e.target.value;
+            });
+            
+            document.getElementById('feedbackLoop').addEventListener('input', (e) => {
+                feedbackLoop = parseInt(e.target.value);
+                document.getElementById('feedbackLoopValue').textContent = feedbackLoop;
+            });
+        });
+    </script>
+    <script src="adobe-killer-processor.js"></script>
+    <script src="adobe-killer.js"></script>
+</body>
+</html>

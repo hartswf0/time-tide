@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Slit-Scan Camera</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 640px;
+            height: 480px;
+            background-color: #000;
+            overflow: hidden;
+        }
+        
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .slit-indicator {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background-color: rgba(255, 0, 0, 0.5);
+            pointer-events: none;
+        }
+        
+        .sediment-container {
+            width: 640px;
+            height: 480px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            overflow: hidden;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        
+        .control-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .control-value {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .info-panel {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        
+        .data-display {
+            font-family: monospace;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        .view-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            justify-content: center;
+        }
+        
+        .view-button {
+            padding: 8px 12px;
+            background-color: #eee;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .view-button.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            justify-content: center;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #eee;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Slit-Scan Camera</h1>
+    
+    <div class="buttons">
+        <button id="startCameraBtn">Start Camera</button>
+        <button id="startCaptureBtn" disabled>Start Capture</button>
+        <button id="pauseBtn" disabled>Pause</button>
+        <button id="resetBtn" disabled>Reset</button>
+        <button id="saveImageBtn" disabled>Save Image</button>
+        <button id="exportJSONBtn" disabled>Export JSON</button>
+        <button id="exportCSVBtn" disabled>Export CSV</button>
+    </div>
+    
+    <div class="container">
+        <div>
+            <h2>Camera Input</h2>
+            <div class="video-container">
+                <video id="video" autoplay playsinline></video>
+                <div id="slitIndicator" class="slit-indicator"></div>
+            </div>
+        </div>
+        
+        <div>
+            <h2>Sediment Output</h2>
+            <div class="view-buttons">
+                <button id="normalViewBtn" class="view-button active">Normal View</button>
+                <button id="wireframeBtn" class="view-button">Wireframe</button>
+                <button id="heatmapBtn" class="view-button">Motion Heatmap</button>
+                <button id="wavePatternBtn" class="view-button">Wave Pattern</button>
+            </div>
+            <div class="sediment-container">
+                <canvas id="sedimentCanvas"></canvas>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="highlightCurrentCheckbox" checked>
+                <label for="highlightCurrentCheckbox">Highlight Current Slit</label>
+                
+                <input type="checkbox" id="showGridCheckbox">
+                <label for="showGridCheckbox">Show Grid</label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label class="control-label" for="slitWidth">Slit Width (px)</label>
+            <input type="range" id="slitWidth" min="1" max="30" value="5">
+            <span class="control-value" id="slitWidthValue">5px</span>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label" for="scanSpeed">Scan Speed</label>
+            <input type="range" id="scanSpeed" min="1" max="20" value="5">
+            <span class="control-value" id="scanSpeedValue">5</span>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label" for="tidalFactor">Tidal Factor</label>
+            <input type="range" id="tidalFactor" min="0" max="100" value="50">
+            <span class="control-value" id="tidalFactorValue">50%</span>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label" for="waveEnergy">Wave Energy</label>
+            <input type="range" id="waveEnergy" min="0" max="100" value="70">
+            <span class="control-value" id="waveEnergyValue">70%</span>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label" for="erosionThreshold">Erosion Threshold</label>
+            <input type="range" id="erosionThreshold" min="1" max="50" value="10">
+            <span class="control-value" id="erosionThresholdValue">10</span>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label" for="compactionRate">Compaction Rate</label>
+            <input type="range" id="compactionRate" min="0" max="50" value="10" step="1">
+            <span class="control-value" id="compactionRateValue">10</span>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label" for="layeringMode">Layering Mode:</label>
+            <select id="layeringMode">
+                <option value="standard">Standard</option>
+                <option value="overlap">Overlap</option>
+                <option value="stacked">Stacked</option>
+                <option value="wave">Wave</option>
+                <option value="reverse">Reverse</option>
+                <option value="random">Random</option>
+                <option value="intensity">Intensity-based</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="info-panel">
+        <h3>Layer Statistics</h3>
+        <div id="layerStats" class="data-display"></div>
+    </div>
+    
+    <div class="status" id="status">System ready. Press "Start Camera" to begin.</div>
+    
+    <script src="simple-sediment-processor.js"></script>
+    <script>
+        // DOM Elements
+        const video = document.getElementById('video');
+        const slitIndicator = document.getElementById('slitIndicator');
+        const sedimentCanvas = document.getElementById('sedimentCanvas');
+        const ctx = sedimentCanvas.getContext('2d');
+        const startCameraBtn = document.getElementById('startCameraBtn');
+        const startCaptureBtn = document.getElementById('startCaptureBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const saveImageBtn = document.getElementById('saveImageBtn');
+        const exportJSONBtn = document.getElementById('exportJSONBtn');
+        const exportCSVBtn = document.getElementById('exportCSVBtn');
+        const status = document.getElementById('status');
+        const layerStats = document.getElementById('layerStats');
+        
+        // View buttons
+        const normalViewBtn = document.getElementById('normalViewBtn');
+        const wireframeBtn = document.getElementById('wireframeBtn');
+        const heatmapBtn = document.getElementById('heatmapBtn');
+        const wavePatternBtn = document.getElementById('wavePatternBtn');
+        
+        // Controls
+        const slitWidthInput = document.getElementById('slitWidth');
+        const slitWidthValue = document.getElementById('slitWidthValue');
+        const scanSpeedInput = document.getElementById('scanSpeed');
+        const scanSpeedValue = document.getElementById('scanSpeedValue');
+        const tidalFactorInput = document.getElementById('tidalFactor');
+        const tidalFactorValue = document.getElementById('tidalFactorValue');
+        const waveEnergyInput = document.getElementById('waveEnergy');
+        const waveEnergyValue = document.getElementById('waveEnergyValue');
+        const erosionThresholdInput = document.getElementById('erosionThreshold');
+        const erosionThresholdValue = document.getElementById('erosionThresholdValue');
+        const compactionRateInput = document.getElementById('compactionRate');
+        const compactionRateValue = document.getElementById('compactionRateValue');
+        const layeringModeSelect = document.getElementById('layeringMode');
+        
+        // Checkboxes
+        const highlightCurrentCheckbox = document.getElementById('highlightCurrentCheckbox');
+        const showGridCheckbox = document.getElementById('showGridCheckbox');
+        
+        // State variables
+        let stream = null;
+        let isCapturing = false;
+        let slitPosition = 0;
+        let slitWidth = parseInt(slitWidthInput.value);
+        let scanSpeed = parseInt(scanSpeedInput.value);
+        let tidalFactor = parseInt(tidalFactorInput.value);
+        let waveEnergy = parseInt(waveEnergyInput.value);
+        let erosionThreshold = parseInt(erosionThresholdInput.value);
+        let compactionRate = parseInt(compactionRateInput.value);
+        let highlightCurrent = highlightCurrentCheckbox.checked;
+        let showGrid = showGridCheckbox.checked;
+        let showWavePattern = false;
+        let currentView = 'normal';
+        let animationFrame;
+        let layeringMode = layeringModeSelect.value;
+        
+        // Create sediment processor
+        const sedimentProcessor = new SimpleSedimentProcessor({
+            maxLayers: 300,
+            waveAmplitude: 5,
+            waveFrequency: 0.02,
+            erosionFactor: 0.01,
+            compactionRate: 0.01,
+            layeringMode: layeringMode
+        });
+        
+        // Initialize canvas
+        function setupCanvas() {
+            sedimentCanvas.width = 640;
+            sedimentCanvas.height = 480;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, sedimentCanvas.width, sedimentCanvas.height);
+        }
+        
+        // Initialize camera
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }
+                });
+                
+                video.srcObject = stream;
+                await video.play();
+                
+                startCameraBtn.disabled = true;
+                startCaptureBtn.disabled = false;
+                resetBtn.disabled = false;
+                
+                updateStatus('Camera started. Press "Start Capture" to begin scanning.');
+            } catch (error) {
+                updateStatus(`Error accessing camera: ${error.message}`);
+            }
+        }
+        
+        // Start capturing slits
+        function startCapture() {
+            if (!stream) return;
+            
+            isCapturing = true;
+            startCaptureBtn.disabled = true;
+            pauseBtn.disabled = false;
+            saveImageBtn.disabled = false;
+            exportJSONBtn.disabled = false;
+            exportCSVBtn.disabled = false;
+            
+            // Start the animation loop
+            cancelAnimationFrame(animationFrame);
+            animationFrame = requestAnimationFrame(captureLoop);
+            
+            updateStatus('Capturing started. Sediment layers are being generated.');
+        }
+        
+        // Pause capturing
+        function pauseCapture() {
+            isCapturing = !isCapturing;
+            pauseBtn.textContent = isCapturing ? 'Pause' : 'Resume';
+            
+            if (isCapturing) {
+                animationFrame = requestAnimationFrame(captureLoop);
+                updateStatus('Capture resumed.');
+            } else {
+                cancelAnimationFrame(animationFrame);
+                updateStatus('Capture paused.');
+            }
+        }
+        
+        // Reset everything
+        function resetSystem() {
+            // Stop capturing
+            isCapturing = false;
+            cancelAnimationFrame(animationFrame);
+            
+            // Reset position
+            slitPosition = 0;
+            
+            // Clear sediment processor
+            sedimentProcessor.layers = [];
+            
+            // Clear canvas
+            setupCanvas();
+            
+            // Update UI
+            pauseBtn.textContent = 'Pause';
+            startCaptureBtn.disabled = false;
+            pauseBtn.disabled = true;
+            saveImageBtn.disabled = true;
+            exportJSONBtn.disabled = true;
+            exportCSVBtn.disabled = true;
+            
+            updateStatus('System reset. Press "Start Capture" to begin scanning again.');
+            updateLayerStats();
+        }
+        
+        // Save the current image
+        function saveImage() {
+            const link = document.createElement('a');
+            link.download = `slit-scan-${Date.now()}.png`;
+            link.href = sedimentCanvas.toDataURL('image/png');
+            link.click();
+            
+            updateStatus('Image saved.');
+        }
+        
+        // Export layer data as JSON
+        function exportJSON() {
+            if (!sedimentProcessor.layers || sedimentProcessor.layers.length === 0) {
+                updateStatus('No layers to export.');
+                return;
+            }
+            
+            // Create simplified data for export
+            const exportData = sedimentProcessor.layers.map(layer => ({
+                position: layer.position,
+                timestamp: layer.timestamp,
+                age: layer.age,
+                motionIntensity: layer.motionIntensity || 0,
+                erosionFactor: layer.erosionFactor || 0,
+                compaction: layer.compaction || 1.0
+            }));
+            
+            // Create and download JSON file
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.download = `sediment-data-${Date.now()}.json`;
+            link.href = url;
+            link.click();
+            
+            updateStatus('JSON data exported.');
+        }
+        
+        // Export layer data as CSV
+        function exportCSV() {
+            if (!sedimentProcessor.layers || sedimentProcessor.layers.length === 0) {
+                updateStatus('No layers to export.');
+                return;
+            }
+            
+            // Create CSV header
+            let csv = 'position,timestamp,age,motionIntensity,erosionFactor,compaction\n';
+            
+            // Add data rows
+            sedimentProcessor.layers.forEach(layer => {
+                csv += `${layer.position},${layer.timestamp},${layer.age},${layer.motionIntensity || 0},${layer.erosionFactor || 0},${layer.compaction || 1.0}\n`;
+            });
+            
+            // Create and download CSV file
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.download = `sediment-data-${Date.now()}.csv`;
+            link.href = url;
+            link.click();
+            
+            updateStatus('CSV data exported.');
+        }
+        
+        // Main capture loop
+        function captureLoop() {
+            if (isCapturing) {
+                captureSlit();
+                animationFrame = requestAnimationFrame(captureLoop);
+            }
+        }
+        
+        // Capture a single slit
+        function captureSlit() {
+            if (!isCapturing || !stream) return;
+            
+            // Create an offscreen canvas to process the video frame
+            const offscreenCanvas = document.createElement('canvas');
+            const offscreenCtx = offscreenCanvas.getContext('2d');
+            offscreenCanvas.width = video.videoWidth || 640;
+            offscreenCanvas.height = video.videoHeight || 480;
+            
+            // Draw the current video frame to the offscreen canvas
+            offscreenCtx.drawImage(video, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
+            
+            // Calculate slit position in pixels
+            const slitX = Math.floor((offscreenCanvas.width - slitWidth) * (slitPosition / 100));
+            
+            // Extract the slit data
+            const slitData = offscreenCtx.getImageData(slitX, 0, slitWidth, offscreenCanvas.height);
+            
+            // Update slit indicator position
+            slitIndicator.style.left = `${slitPosition}%`;
+            slitIndicator.style.width = `${slitWidth}px`;
+            
+            // Process the slit with the sediment processor
+            const processedData = sedimentProcessor.processSlit(
+                slitData, 
+                slitPosition, 
+                Date.now(), 
+                {
+                    tidalFactor,
+                    waveEnergy,
+                    erosionThreshold,
+                    compactionRate,
+                    layeringMode
+                }
+            );
+            
+            // Move slit position for next frame
+            slitPosition = (slitPosition + scanSpeed / 10) % 100;
+            
+            // Render the sediment view
+            renderSedimentView();
+            
+            // Update stats
+            updateLayerStats();
+            
+            // Update status
+            updateStatus(`Scanning active: Position ${slitPosition.toFixed(1)}% | Width ${slitWidth}px | Speed ${scanSpeed}`);
+        }
+        
+        // Render the current view of sediment layers
+        function renderSedimentView() {
+            // Clear canvas
+            ctx.clearRect(0, 0, sedimentCanvas.width, sedimentCanvas.height);
+            
+            // Draw grid if enabled
+            if (showGrid) {
+                drawGrid();
+            }
+            
+            // Render based on current view mode
+            switch (currentView) {
+                case 'wireframe':
+                    sedimentProcessor.renderLayers(ctx, sedimentCanvas.width, sedimentCanvas.height, {
+                        showWireframe: true,
+                        highlightCurrent,
+                        tidalFactor,
+                        waveEnergy,
+                        showWavePattern
+                    });
+                    break;
+                    
+                case 'heatmap':
+                    sedimentProcessor.renderHeatmap(ctx, sedimentCanvas.width, sedimentCanvas.height, {
+                        tidalFactor,
+                        waveEnergy
+                    });
+                    break;
+                    
+                case 'wave':
+                    sedimentProcessor.renderLayers(ctx, sedimentCanvas.width, sedimentCanvas.height, {
+                        showWireframe: false,
+                        highlightCurrent,
+                        tidalFactor,
+                        waveEnergy,
+                        showWavePattern: true
+                    });
+                    break;
+                    
+                case 'normal':
+                default:
+                    sedimentProcessor.renderLayers(ctx, sedimentCanvas.width, sedimentCanvas.height, {
+                        showWireframe: false,
+                        highlightCurrent,
+                        tidalFactor,
+                        waveEnergy,
+                        showWavePattern
+                    });
+                    break;
+            }
+        }
+        
+        // Draw grid on canvas
+        function drawGrid() {
+            const gridSize = 50;
+            ctx.strokeStyle = 'rgba(200, 200, 200, 0.3)';
+            ctx.lineWidth = 1;
+            
+            // Draw vertical lines
+            for (let x = 0; x <= sedimentCanvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, sedimentCanvas.height);
+                ctx.stroke();
+            }
+            
+            // Draw horizontal lines
+            for (let y = 0; y <= sedimentCanvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(sedimentCanvas.width, y);
+                ctx.stroke();
+            }
+        }
+        
+        // Update layer statistics display
+        function updateLayerStats() {
+            if (!sedimentProcessor.layers || sedimentProcessor.layers.length === 0) {
+                layerStats.textContent = 'No layers captured yet.';
+                return;
+            }
+            
+            const stats = sedimentProcessor.getStats();
+            layerStats.textContent = `
+Layer Count: ${stats.layerCount}
+Oldest Layer Age: ${stats.oldestLayerAge} frames
+Average Motion: ${stats.averageMotion}
+Wave Phase: ${stats.wavePhase}
+Tidal Cycle: ${stats.tidalCycle}
+Tidal Factor: ${tidalFactor}%
+Wave Energy: ${waveEnergy}%
+Erosion Threshold: ${erosionThreshold}
+Compaction Rate: ${compactionRate}
+Layering Mode: ${layeringMode}
+`;
+        }
+        
+        // Update status display
+        function updateStatus(message) {
+            status.textContent = message;
+        }
+        
+        // Set view mode
+        function setViewMode(mode) {
+            currentView = mode;
+            
+            // Update button states
+            normalViewBtn.classList.toggle('active', mode === 'normal');
+            wireframeBtn.classList.toggle('active', mode === 'wireframe');
+            heatmapBtn.classList.toggle('active', mode === 'heatmap');
+            wavePatternBtn.classList.toggle('active', mode === 'wave');
+            
+            // Render with new mode
+            renderSedimentView();
+        }
+        
+        // Event listeners
+        startCameraBtn.addEventListener('click', startCamera);
+        startCaptureBtn.addEventListener('click', startCapture);
+        pauseBtn.addEventListener('click', pauseCapture);
+        resetBtn.addEventListener('click', resetSystem);
+        saveImageBtn.addEventListener('click', saveImage);
+        exportJSONBtn.addEventListener('click', exportJSON);
+        exportCSVBtn.addEventListener('click', exportCSV);
+        
+        // View mode buttons
+        normalViewBtn.addEventListener('click', () => setViewMode('normal'));
+        wireframeBtn.addEventListener('click', () => setViewMode('wireframe'));
+        heatmapBtn.addEventListener('click', () => setViewMode('heatmap'));
+        wavePatternBtn.addEventListener('click', () => setViewMode('wave'));
+        
+        // Checkbox event listeners
+        highlightCurrentCheckbox.addEventListener('change', () => {
+            highlightCurrent = highlightCurrentCheckbox.checked;
+            renderSedimentView();
+        });
+        
+        showGridCheckbox.addEventListener('change', () => {
+            showGrid = showGridCheckbox.checked;
+            renderSedimentView();
+        });
+        
+        // Control event listeners
+        slitWidthInput.addEventListener('input', () => {
+            slitWidth = parseInt(slitWidthInput.value);
+            slitWidthValue.textContent = `${slitWidth}px`;
+        });
+        
+        scanSpeedInput.addEventListener('input', () => {
+            scanSpeed = parseInt(scanSpeedInput.value);
+            scanSpeedValue.textContent = scanSpeed;
+        });
+        
+        tidalFactorInput.addEventListener('input', () => {
+            tidalFactor = parseInt(tidalFactorInput.value);
+            tidalFactorValue.textContent = `${tidalFactor}%`;
+            renderSedimentView();
+        });
+        
+        waveEnergyInput.addEventListener('input', () => {
+            waveEnergy = parseInt(waveEnergyInput.value);
+            waveEnergyValue.textContent = `${waveEnergy}%`;
+            renderSedimentView();
+        });
+        
+        erosionThresholdInput.addEventListener('input', () => {
+            erosionThreshold = parseInt(erosionThresholdInput.value);
+            erosionThresholdValue.textContent = erosionThreshold;
+        });
+        
+        compactionRateInput.addEventListener('input', () => {
+            compactionRate = parseInt(compactionRateInput.value);
+            compactionRateValue.textContent = compactionRate;
+        });
+        
+        layeringModeSelect.addEventListener('change', () => {
+            layeringMode = layeringModeSelect.value;
+            sedimentProcessor.setLayeringMode(layeringMode);
+            updateLayerStats();
+            renderSedimentView();
+        });
+        
+        // Initialize
+        setupCanvas();
+        updateLayerStats();
+    </script>
+</body>
+</html>
