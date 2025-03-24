@@ -22,6 +22,11 @@ class AdobeKillerProcessor {
             layerOffset: 0,
             layerDistortion: 0,
             layerBlur: 0,
+            baseHue: 0,
+            saturation: 100,
+            value: 100,
+            hueShift: 0,
+            hueShiftMode: 'fixed',
             ...options
         };
         
@@ -227,13 +232,45 @@ class AdobeKillerProcessor {
         // Calculate phase shift for color cycling
         const colorPhase = this.tidalCycle * normalizedShift;
         
-        // Base color components with color shifting
-        const r = Math.floor(intensity * 0.7 + Math.sin(colorPhase) * 50);
-        const g = Math.floor(intensity * 0.5 + (normalizedTidal * 50) + Math.sin(colorPhase + 2.1) * 50);
-        const b = Math.floor(intensity * 0.3 + (normalizedWave * 100) + Math.sin(colorPhase + 4.2) * 50);
+        // Get HSV color controls if they exist in options
+        const baseHue = this.options.baseHue !== undefined ? this.options.baseHue : 0;
+        const saturation = this.options.saturation !== undefined ? this.options.saturation / 100 : 1;
+        const value = this.options.value !== undefined ? this.options.value / 100 : 1;
+        const hueShift = this.options.hueShift !== undefined ? this.options.hueShift : 0;
+        const hueShiftMode = this.options.hueShiftMode || 'fixed';
         
-        // Return RGBA color with alpha based on intensity
-        return `rgba(${Math.max(0, Math.min(255, r))}, ${Math.max(0, Math.min(255, g))}, ${Math.max(0, Math.min(255, b))}, 0.7)`;
+        // Calculate final hue based on hue shift mode
+        let finalHue = baseHue;
+        
+        if (hueShiftMode === 'position') {
+            // Shift hue based on intensity
+            const normalizedIntensity = intensity / 255;
+            finalHue = (baseHue + (normalizedIntensity * hueShift)) % 360;
+        } else if (hueShiftMode === 'intensity') {
+            // Shift hue based on motion intensity
+            const intensityNormalized = Math.min(1, intensity / 255);
+            finalHue = (baseHue + intensityNormalized * hueShift) % 360;
+        } else if (hueShiftMode === 'time') {
+            // Shift hue based on time
+            const timeNormalized = (Date.now() % 10000) / 10000;
+            finalHue = (baseHue + timeNormalized * hueShift) % 360;
+        }
+        
+        // If HSV controls are defined, use them
+        if (this.options.baseHue !== undefined) {
+            // Convert HSV to RGB
+            const color = this.hsvToRgb(finalHue / 360, saturation, value);
+            return `rgba(${color.r}, ${color.g}, ${color.b}, 0.7)`;
+        } else {
+            // Use legacy color calculation for backward compatibility
+            // Base color components with color shifting
+            const r = Math.floor(intensity * 0.7 + Math.sin(colorPhase) * 50);
+            const g = Math.floor(intensity * 0.5 + (normalizedTidal * 50) + Math.sin(colorPhase + 2.1) * 50);
+            const b = Math.floor(intensity * 0.3 + (normalizedWave * 100) + Math.sin(colorPhase + 4.2) * 50);
+            
+            // Return RGBA color with alpha based on intensity
+            return `rgba(${Math.max(0, Math.min(255, r))}, ${Math.max(0, Math.min(255, g))}, ${Math.max(0, Math.min(255, b))}, 0.7)`;
+        }
     }
     
     /**
@@ -927,7 +964,7 @@ class AdobeKillerProcessor {
             
             // Only set xPosition if not already set (for brickwork)
             if (xPosition === undefined) {
-                xPosition = Math.floor((width * layer.position) / 100) + 
+                xPosition = Math.floor(width * layer.position) / 100 + 
                          (layer.waveDisplacement || 0) + 
                          (showWavePattern ? waveEffect : 0);
             }
@@ -1004,7 +1041,7 @@ class AdobeKillerProcessor {
                 
                 // Draw the original slit data stretched to fill the brick
                 brickCtx.drawImage(
-                    tempCanvas,
+                    tempCanvas, 
                     0, 0, layer.data.width, layer.data.height,
                     0, 0, brickWidth, brickHeight
                 );
@@ -1092,15 +1129,6 @@ class AdobeKillerProcessor {
                         ctx.lineTo(x, y);
                     }
                 }
-                
-                // Complete the shape
-                for (let i = points; i >= 0; i--) {
-                    const x = xPosition + (i / points) * layerWidth;
-                    const distortionY = Math.sin(i * 0.5 + index) * (layerHeight * distortionAmount);
-                    const y = yPosition + layerHeight + distortionY;
-                    ctx.lineTo(x, y);
-                }
-                
                 ctx.closePath();
                 ctx.clip();
                 
@@ -1377,13 +1405,13 @@ class AdobeKillerProcessor {
                     
                 case 'overlap':
                     // Layers overlap in center
-                    yPos = height / 2;
+                    yPos = (height - layer.data.height) / 2;
                     break;
                     
                 case 'wave':
                     // Wave pattern for layer positions
                     const wavePos = Math.sin((index / visibleLayers.length) * Math.PI * 2 + this.wavePhase);
-                    yPos = height * (0.5 + wavePos * 0.3);
+                    yPos = (height - layer.data.height) * (0.5 + wavePos * 0.3);
                     break;
                     
                 case 'stratigraphy':
@@ -1732,7 +1760,6 @@ class AdobeKillerProcessor {
                     const distortion = Math.sin(x * 0.01 + y * 0.01) * distortionFactor;
                     ctx.lineTo(x, y + distortion);
                 }
-                
                 ctx.stroke();
             }
             
@@ -1747,7 +1774,6 @@ class AdobeKillerProcessor {
                     const distortion = Math.sin(y * 0.01 + x * 0.01) * distortionFactor;
                     ctx.lineTo(x + distortion, y);
                 }
-                
                 ctx.stroke();
             }
         });
@@ -2808,27 +2834,8 @@ class AdobeKillerProcessor {
             
             // Draw the layer with the original image data
             if (layer.data && layer.data.imageData) {
-                // For normal mode, we draw the actual image data with a tint based on HSV controls
-                
-                // Create a temporary canvas to apply the color tint
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                tempCanvas.width = layer.data.width;
-                tempCanvas.height = 1;
-                
-                // Put the original image data
-                tempCtx.putImageData(layer.data.imageData, 0, 0);
-                
-                // Apply color overlay using the composite operation
-                tempCtx.globalCompositeOperation = 'source-atop';
-                tempCtx.fillStyle = `rgba(${layerColor.r}, ${layerColor.g}, ${layerColor.b}, 0.5)`;
-                tempCtx.fillRect(0, 0, layer.data.width, 1);
-                
-                // Reset composite operation
-                tempCtx.globalCompositeOperation = 'source-over';
-                
-                // Draw the tinted image to the main canvas
-                ctx.drawImage(tempCanvas, x, y);
+                // Draw the layer data
+                ctx.putImageData(layer.data.imageData, x, y);
             } else if (layer.data && layer.data.width) {
                 // Draw a rectangle for the layer
                 ctx.fillStyle = `rgba(${layerColor.r}, ${layerColor.g}, ${layerColor.b}, 0.8)`;
@@ -2839,7 +2846,10 @@ class AdobeKillerProcessor {
             if (highlightCurrent && index === visibleLayers.length - 1) {
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
                 ctx.lineWidth = 2;
-                ctx.strokeRect(x - 2, y - 2, (layer.data ? layer.data.width : 10) + 4, 5);
+                
+                ctx.beginPath();
+                ctx.arc(x + (layer.data ? layer.data.width : 10) / 2, y, 8, 0, Math.PI * 2);
+                ctx.stroke();
             }
         });
         

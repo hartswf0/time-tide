@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADOBE KILLER: A PRAGMATIC REVOLUTION</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Playfair+Display:wght@700&display=swap');
+        
+        :root {
+            --freedom-amber: #E67E22;
+            --enclosure-blue: #005A87;
+            --background: #f9f7f1;
+            --text: #333333;
+            --secondary-text: #555555;
+            --border: #dddddd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            font-family: 'Space Mono', monospace;
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            margin-bottom: 3rem;
+            position: relative;
+            padding-top: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, var(--freedom-amber), var(--enclosure-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin: 2rem 0 1rem;
+            color: var(--text);
+            border-left: 4px solid var(--freedom-amber);
+            padding-left: 1rem;
+        }
+        
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        
+        .highlight {
+            color: var(--freedom-amber);
+            font-weight: bold;
+        }
+        
+        .blue-highlight {
+            color: var(--enclosure-blue);
+            font-weight: bold;
+        }
+        
+        .manifesto-section {
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+        
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .feature {
+            background-color: rgba(230, 126, 34, 0.05);
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--freedom-amber);
+        }
+        
+        .feature p {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+        
+        .transition-path {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .transition-path::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, var(--enclosure-blue), var(--freedom-amber));
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        
+        .transition-stage {
+            background-color: var(--background);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            position: relative;
+            z-index: 2;
+            border: 1px solid var(--border);
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .metric {
+            text-align: center;
+            padding: 1rem;
+            background-color: rgba(0, 90, 135, 0.05);
+            border-radius: 4px;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--enclosure-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--secondary-text);
+        }
+        
+        .testimonial {
+            font-style: italic;
+            padding: 1.5rem;
+            background-color: rgba(230, 126, 34, 0.05);
+            border-radius: 4px;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .testimonial::before {
+            content: """;
+            font-size: 4rem;
+            position: absolute;
+            top: -1rem;
+            left: 0.5rem;
+            color: rgba(230, 126, 34, 0.2);
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .testimonial-author {
+            text-align: right;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            font-style: normal;
+        }
+        
+        .historical-context {
+            display: flex;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .historical-context::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background-color: var(--border);
+            transform: translateX(-50%);
+        }
+        
+        .historical-era {
+            flex: 1;
+            padding: 1rem;
+            position: relative;
+        }
+        
+        .historical-era::before {
+            content: "";
+            position: absolute;
+            top: 1.5rem;
+            left: 50%;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: var(--freedom-amber);
+            transform: translateX(-50%);
+        }
+        
+        .historical-era h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .historical-era p {
+            font-size: 0.8rem;
+        }
+        
+        .signature {
+            margin-top: 3rem;
+            text-align: right;
+            font-style: italic;
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+        }
+        
+        .date {
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+        }
+        
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+            
+            .historical-context {
+                flex-direction: column;
+            }
+            
+            .historical-context::before {
+                left: 1rem;
+                width: 2px;
+            }
+            
+            .historical-era::before {
+                left: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ADOBE KILLER: A PRAGMATIC REVOLUTION</h1>
+            <p>A framework for creative sovereignty in the age of subscription software</p>
+        </header>
+        
+        <div class="manifesto-section">
+            <h2>CONTEXT & PURPOSE</h2>
+            <p>
+                The Adobe Killer Slit Scan project emerges from a specific historical moment: the transition from ownership to subscription, from local to cloud, from individual control to corporate governance of creative tools. It is both a functional tool and a conceptual framework for navigating beyond proprietary enclosures.
+            </p>
+            <p>
+                This manifesto addresses three audiences simultaneously: <span class="highlight">current Adobe users</span> seeking practical alternatives, <span class="highlight">developers</span> building sovereign creative tools, and <span class="highlight">institutions</span> shaping technology policy and education.
+            </p>
+            
+            <div class="historical-context">
+                <div class="historical-era">
+                    <h3>1990s-2000s</h3>
+                    <p>Perpetual licenses, local storage, file ownership</p>
+                </div>
+                <div class="historical-era">
+                    <h3>2010s-2020s</h3>
+                    <p>Subscription models, cloud storage, access contingency</p>
+                </div>
+                <div class="historical-era">
+                    <h3>2020s-Present</h3>
+                    <p>Agentic tools, distributed creation, sovereignty movements</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="manifesto-section">
+            <h2>TECHNICAL SPECIFICITY</h2>
+            <p>
+                The Adobe Killer Slit Scan is a web-based application that transforms video input through temporal manipulation, creating images impossible within conventional software paradigms. Its core functions include:
+            </p>
+            
+            <div class="two-column">
+                <div class="feature">
+                    <h3>Temporal Folding</h3>
+                    <p>Captures video frames across time, compressing temporal dimensions into spatial representations</p>
+                </div>
+                <div class="feature">
+                    <h3>Browser-Native</h3>
+                    <p>Runs entirely in-browser using WebGL and Canvas APIs, requiring no installation or cloud processing</p>
+                </div>
+                <div class="feature">
+                    <h3>Parameter Control</h3>
+                    <p>Offers granular control over HSV color transformations, scan direction, and accumulation methods</p>
+                </div>
+                <div class="feature">
+                    <h3>Format Freedom</h3>
+                    <p>Exports to open formats (PNG, WebP) with full metadata preservation and no proprietary encumbrances</p>
+                </div>
+            </div>
+            
+            <p>
+                The technical architecture embodies its philosophical principles: local processing preserves privacy, open formats ensure longevity, and browser implementation maximizes accessibility across devices and operating systems.
+            </p>
+        </div>
+        
+        <div class="manifesto-section">
+            <h2>SLIT SCAN AS TECHNIQUE & METAPHOR</h2>
+            <p>
+                The slit scan technique itself is neither inherently liberatory nor oppressive—it is the <span class="highlight">governance of the technique</span> that determines its impact. Adobe's subscription model functions as a form of slit scan: extracting thin slices of access over time while maintaining control of the whole.
+            </p>
+            <p>
+                By implementing slit scan in an open, accessible framework, we transform the technique from a metaphor of extraction to one of revelation. The same process that Adobe uses to capture recurring revenue becomes, in our hands, a tool for exposing the structures of temporal dispossession.
+            </p>
+            <p>
+                This dual nature—technique as both problem and solution—reflects the broader reality that liberation often requires appropriating and transforming the very tools used for confinement.
+            </p>
+        </div>
+        
+        <div class="manifesto-section">
+            <h2>STRATEGIC MIGRATION, NOT BINARY REJECTION</h2>
+            <p>
+                We acknowledge a pragmatic truth: complete independence from proprietary systems is neither immediately possible nor always desirable. The path toward creative sovereignty is not binary but gradual—a strategic migration rather than an absolute rejection.
+            </p>
+            
+            <div class="transition-path">
+                <div class="transition-stage">Full Dependency</div>
+                <div class="transition-stage">Strategic Use</div>
+                <div class="transition-stage">Parallel Workflows</div>
+                <div class="transition-stage">Primary Alternative</div>
+                <div class="transition-stage">Selective Sovereignty</div>
+            </div>
+            
+            <p>
+                This framework allows creators to locate themselves on a spectrum and progress at a sustainable pace. Some may remain in strategic use of Adobe tools while developing alternative workflows; others may achieve selective sovereignty in specific domains while maintaining interoperability.
+            </p>
+            <p>
+                The goal is not purity but agency—the ability to determine one's relationship to tools rather than having that relationship determined by corporate imperatives.
+            </p>
+        </div>
+        
+        <div class="manifesto-section">
+            <h2>INDIVIDUAL CHOICE & COLLECTIVE ACTION</h2>
+            <p>
+                Creative sovereignty emerges at the intersection of individual choice and collective infrastructure. Individual tool adoption alone cannot challenge Adobe's dominance; collective governance models and shared resources are equally necessary.
+            </p>
+            <p>
+                The Adobe Killer project contributes to this ecosystem through:
+            </p>
+            
+            <div class="feature">
+                <h3>Open Source Development</h3>
+                <p>All code is freely available, modifiable, and redistributable, enabling community extension and adaptation</p>
+            </div>
+            <div class="feature">
+                <h3>Knowledge Commons</h3>
+                <p>Documentation and tutorials are structured as public goods, building collective understanding of both technical and philosophical dimensions</p>
+            </div>
+            <div class="feature">
+                <h3>Institutional Engagement</h3>
+                <p>Partnerships with educational institutions to integrate sovereign tools into curricula, challenging Adobe's pipeline from education to industry</p>
+            </div>
+            
+            <p>
+                This approach recognizes that material conditions—not just philosophical orientations—shape software ecosystems. By addressing both individual practice and collective infrastructure, we create conditions for sustainable alternatives.
+            </p>
+        </div>
+        
+        <div class="manifesto-section">
+            <h2>WINDSURF & THE PARADOX OF TOOLS</h2>
+            <p>
+                The Adobe Killer was created with Windsurf, an agentic IDE that itself represents a new relationship between creators and tools. This raises a critical question: how do we prevent new tools from reproducing old patterns of dependency and control?
+            </p>
+            <p>
+                Windsurf differs from Adobe's ecosystem in three fundamental ways:
+            </p>
+            
+            <div class="feature">
+                <h3>Local-First Architecture</h3>
+                <p>Processing happens on your device, not in corporate clouds, preserving privacy and preventing access revocation</p>
+            </div>
+            <div class="feature">
+                <h3>Transparent Mediation</h3>
+                <p>The relationship between creator and tool is visible and modifiable, not obscured behind proprietary interfaces</p>
+            </div>
+            <div class="feature">
+                <h3>Governance Diversity</h3>
+                <p>Multiple implementations and governance models prevent monopolistic control of the underlying technology</p>
+            </div>
+            
+            <p>
+                These characteristics don't eliminate dependency—all tools create dependencies—but they transform dependency from a relationship of control to one of transparent collaboration. The goal is not independence from tools but sovereignty within tool relationships.
+            </p>
+        </div>
+        
+        <div class="manifesto-section">
+            <h2>ACCESSIBILITY & INCLUSION</h2>
+            <p>
+                Liberation that reproduces existing exclusions is not liberation at all. The Adobe Killer project addresses accessibility through:
+            </p>
+            
+            <div class="feature">
+                <h3>Browser-Based Implementation</h3>
+                <p>Runs on any device with a modern browser, eliminating installation barriers and hardware requirements</p>
+            </div>
+            <div class="feature">
+                <h3>Progressive Enhancement</h3>
+                <p>Core functionality works on modest hardware, with enhanced features available on more powerful systems</p>
+            </div>
+            <div class="feature">
+                <h3>Multi-Modal Interfaces</h3>
+                <p>Controls accessible through both visual interfaces and keyboard commands, supporting diverse interaction needs</p>
+            </div>
+            <div class="feature">
+                <h3>Documentation Accessibility</h3>
+                <p>Learning resources available in multiple formats, including text, visual, and interactive tutorials</p>
+            </div>
+            
+            <p>
+                True sovereignty requires not just technical freedom but equitable access. The project measures success not just by feature parity with Adobe tools but by who can meaningfully participate in their use.
+            </p>
+        </div>
+        
+        <div class="manifesto-section">
+            <h2>METRICS OF SOVEREIGNTY</h2>
+            <p>
+                How do we measure progress toward creative sovereignty? The Adobe Killer project proposes these metrics:
+            </p>
+            
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-value">Format Freedom</div>
+                    <div class="metric-label">% of work exportable to open, non-proprietary formats</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">Access Resilience</div>
+                    <div class="metric-label">Ability to use tools during service disruptions</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">Governance Participation</div>
+                    <div class="metric-label">User influence on tool development priorities</div>
+                </div>
+            </div>
+            
+            <p>
+                These metrics shift focus from feature comparison to sovereignty assessment, providing concrete indicators of progress beyond philosophical alignment.
+            </p>
+        </div>
+        
+        <div class="manifesto-section">
+            <h2>ECONOMIC SUSTAINABILITY</h2>
+            <p>
+                Sovereign tools require sustainable economic models that fund development without reproducing extractive patterns. The Adobe Killer project explores multiple approaches:
+            </p>
+            
+            <div class="feature">
+                <h3>Institutional Support</h3>
+                <p>Partnerships with educational and cultural institutions that benefit from sovereign creative infrastructure</p>
+            </div>
+            <div class="feature">
+                <h3>Community Stewardship</h3>
+                <p>Distributed maintenance and development costs across user communities through contribution mechanisms</p>
+            </div>
+            <div class="feature">
+                <h3>Service Ecosystem</h3>
+                <p>Optional paid services around the free core, including training, customization, and integration</p>
+            </div>
+            <div class="feature">
+                <h3>Public Infrastructure</h3>
+                <p>Recognition of creative tools as essential infrastructure deserving public investment</p>
+            </div>
+            
+            <p>
+                These models recognize that economic sustainability doesn't require reproducing Adobe's extraction model—alternative patterns can support ongoing development while preserving user sovereignty.
+            </p>
+        </div>
+        
+        <div class="manifesto-section">
+            <h2>BROADER MOVEMENTS</h2>
+            <p>
+                The Adobe Killer project connects to parallel movements for technological sovereignty across domains:
+            </p>
+            
+            <div class="feature">
+                <h3>Digital Commons</h3>
+                <p>Building shared resources governed by their users rather than corporate shareholders</p>
+            </div>
+            <div class="feature">
+                <h3>Platform Cooperativism</h3>
+                <p>Creating user-owned alternatives to extractive platform models</p>
+            </div>
+            <div class="feature">
+                <h3>Data Sovereignty</h3>
+                <p>Ensuring communities control their data and its applications</p>
+            </div>
+            <div class="feature">
+                <h3>Repair Rights</h3>
+                <p>Defending the ability to modify and maintain technologies rather than being forced into planned obsolescence</p>
+            </div>
+            
+            <p>
+                By situating creative tool sovereignty within these broader movements, we recognize that Adobe's dominance is not unique but part of larger patterns of technological enclosure—and that our resistance connects to wider struggles for technological self-determination.
+            </p>
+        </div>
+        
+        <div class="testimonial">
+            <p>
+                The Adobe Killer transformed my relationship with creative technology. I still use Photoshop for client work, but having sovereignty over my personal projects has changed how I approach all my tools—with intention rather than dependency.
+            </p>
+            <div class="testimonial-author">
+                — Maya K., Digital Artist
+            </div>
+        </div>
+        
+        <div class="manifesto-section">
+            <h2>CONCLUSION: NAVIGATING FORWARD</h2>
+            <p>
+                We are not home yet. Ithaca remains on the horizon. But we are navigating, steering toward our goal—a creative sovereignty that exists not in isolation from technological systems but in conscious, intentional relationship with them.
+            </p>
+            <p>
+                The Adobe Killer is not the destination but a vessel—one craft among many in a growing fleet of sovereign technologies. Together, they chart a course toward creative liberation that is neither utopian nor naive, but grounded in the practical work of building alternatives.
+            </p>
+            <p>
+                We sail on, guided by both pragmatism and principle, recognizing that the journey itself transforms us into different kinds of creators—ones who use tools rather than being used by them.
+            </p>
+        </div>
+        
+        <div class="signature">
+            <p>In pragmatic revolution,</p>
+            <p>The Creator</p>
+            <p class="date">March 24, 2025 - The Continuing Journey</p>
+        </div>
+    </div>
+</body>
+</html>

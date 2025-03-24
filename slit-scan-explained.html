@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding Slit-Scan Technology: A Visual Explanation</title>
+    <style>
+        /* Tufte-inspired CSS */
+        :root {
+            --main-bg-color: #fffff8;
+            --text-color: #111;
+            --light-text: #666;
+            --accent-color: #00c8ff;
+            --link-color: #2c3e50;
+            --border-color: #ddd;
+            --caption-color: #777;
+            --code-bg: #f7f7f7;
+            --sidenote-bg: #f8f8f8;
+        }
+        
+        body {
+            font-family: et-book, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+            background-color: var(--main-bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            counter-reset: sidenote-counter;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            position: relative;
+        }
+        
+        h1, h2, h3, h4 {
+            font-weight: normal;
+            margin-top: 2.1rem;
+            margin-bottom: 1.4rem;
+            line-height: 1;
+        }
+        
+        h1 {
+            font-size: 3.2rem;
+            line-height: 1;
+        }
+        
+        h2 {
+            font-size: 2.2rem;
+        }
+        
+        h3 {
+            font-size: 1.7rem;
+        }
+        
+        p {
+            margin-top: 1.4rem;
+            margin-bottom: 1.4rem;
+            padding-right: 0;
+            vertical-align: baseline;
+        }
+        
+        /* Main content area */
+        article {
+            position: relative;
+            padding-right: 26%;
+        }
+        
+        /* Side notes and margin notes */
+        .sidenote, .marginnote {
+            float: right;
+            clear: right;
+            margin-right: -60%;
+            width: 50%;
+            margin-top: 0;
+            margin-bottom: 0;
+            font-size: 0.8rem;
+            line-height: 1.3;
+            vertical-align: baseline;
+            position: relative;
+            color: var(--light-text);
+            background-color: var(--sidenote-bg);
+            padding: 0.5rem;
+            border-left: 1px solid var(--border-color);
+        }
+        
+        .sidenote-number {
+            counter-increment: sidenote-counter;
+        }
+        
+        .sidenote-number:after, .sidenote:before {
+            content: counter(sidenote-counter);
+            font-size: 0.7rem;
+            top: -0.5rem;
+            position: relative;
+        }
+        
+        .sidenote:before {
+            content: counter(sidenote-counter) ". ";
+        }
+        
+        .marginnote:before {
+            content: "";
+            position: relative;
+        }
+        
+        /* Figures and images */
+        figure {
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+            max-width: 100%;
+            margin: 2.5rem 0;
+            position: relative;
+        }
+        
+        figure.fullwidth {
+            width: 100%;
+            padding-right: 0;
+        }
+        
+        figure img {
+            max-width: 100%;
+        }
+        
+        figcaption {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-top: 0;
+            margin-bottom: 0;
+            color: var(--caption-color);
+            max-width: 90%;
+        }
+        
+        /* Code blocks */
+        pre, code {
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 0.9rem;
+            background-color: var(--code-bg);
+            padding: 0.1rem 0.2rem;
+            border-radius: 3px;
+        }
+        
+        pre {
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        
+        /* Small multiples */
+        .small-multiples {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin: 2rem 0;
+        }
+        
+        .small-multiple {
+            flex: 0 0 calc(33.333% - 1rem);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .small-multiple img {
+            width: 100%;
+            border: 1px solid var(--border-color);
+        }
+        
+        .small-multiple figcaption {
+            font-size: 0.8rem;
+        }
+        
+        /* Process diagram */
+        .process-diagram {
+            display: flex;
+            flex-direction: column;
+            margin: 2rem 0;
+        }
+        
+        .process-step {
+            display: flex;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+        
+        .step-number {
+            flex: 0 0 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        /* Data tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.9rem;
+        }
+        
+        th, td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            border-bottom: 2px solid var(--border-color);
+            font-weight: normal;
+        }
+        
+        /* Sparklines and mini charts */
+        .sparkline {
+            height: 1em;
+            width: 80px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            article {
+                padding-right: 0;
+            }
+            
+            .sidenote, .marginnote {
+                float: none;
+                display: block;
+                margin: 1rem 0;
+                width: 100%;
+                padding: 0.5rem;
+            }
+            
+            .small-multiple {
+                flex: 0 0 calc(50% - 1rem);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .small-multiple {
+                flex: 0 0 100%;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Understanding Slit-Scan Technology</h1>
+            <p class="subtitle">A Visual Explanation of Temporal-Spatial Imaging</p>
+        </header>
+        
+        <article>
+            <section id="introduction">
+                <h2>The Essence of Slit-Scan Imaging</h2>
+                
+                <figure class="fullwidth">
+                    <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='300' viewBox='0 0 1000 300'%3E%3Crect width='1000' height='300' fill='%23f8f8f8'/%3E%3Cpath d='M100,150 L900,150' stroke='%23ccc' stroke-width='1' stroke-dasharray='5,5'/%3E%3Crect x='150' y='50' width='200' height='200' fill='%23eee' stroke='%23333'/%3E%3Cline x1='250' y1='50' x2='250' y2='250' stroke='%2300c8ff' stroke-width='3'/%3E%3Crect x='400' y='100' width='50' height='100' fill='%2300c8ff' fill-opacity='0.3' stroke='%2300c8ff'/%3E%3Cpath d='M450,150 L500,150' stroke='%23333' stroke-width='2' stroke-dasharray='5,5'/%3E%3Crect x='500' y='50' width='50' height='200' fill='%2300c8ff' fill-opacity='0.3' stroke='%2300c8ff'/%3E%3Cpath d='M550,150 L600,150' stroke='%23333' stroke-width='2' stroke-dasharray='5,5'/%3E%3Crect x='600' y='50' width='50' height='200' fill='%2300c8ff' fill-opacity='0.3' stroke='%2300c8ff'/%3E%3Cpath d='M650,150 L700,150' stroke='%23333' stroke-width='2' stroke-dasharray='5,5'/%3E%3Crect x='700' y='50' width='150' height='200' fill='%23eee' stroke='%23333'/%3E%3C/svg%3E" alt="Slit-scan process diagram showing how a vertical slice of each frame builds up to create a temporal image">
+                    <figcaption>
+                        Figure 1: The fundamental principle of slit-scan imaging. A single vertical slice (blue line) is extracted from each video frame and compiled sequentially to create a new composite image that represents time horizontally and space vertically.
+                    </figcaption>
+                </figure>
+                
+                <p>
+                    Slit-scan imaging represents a unique intersection of space and time in visual media. Unlike conventional photography, which captures a moment frozen in time, slit-scan technology creates images where one dimension represents space while the other represents time. This technique produces distinctive visualizations that reveal temporal patterns otherwise invisible to the human eye.
+                </p>
+                
+                <p>
+                    At its core, slit-scan works by:
+                </p>
+                
+                <ol>
+                    <li>Capturing a sequence of video frames</li>
+                    <li>Extracting a narrow vertical or horizontal slice from each frame</li>
+                    <li>Arranging these slices sequentially to form a composite image</li>
+                </ol>
+                
+                <p>
+                    The resulting image displays spatial information along one axis and temporal information along the other, creating a visual record of movement and change over time. This approach to imaging has applications ranging from scientific analysis to artistic expression.
+                </p>
+                
+                <div class="sidenote">
+                    The term "slit-scan" originates from traditional photography, where a narrow slit was used to control exposure. In digital implementations, this physical slit is replaced by algorithmic selection of pixels.
+                </div>
+                
+                <p>
+                    In the Adobe Killer Slit-Scan application, this fundamental principle is extended with real-time processing capabilities, multiple visualization modes, and parametric controls that allow for unprecedented creative and analytical possibilities.
+                </p>
+            </section>
+            
+            <section id="historical-context">
+                <h2>Historical Context & Evolution</h2>
+                
+                <figure class="fullwidth">
+                    <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120'%3E%3Crect width='1000' height='120' fill='%23f8f8f8'/%3E%3Cline x1='100' y1='60' x2='900' y2='60' stroke='%23333' stroke-width='2'/%3E%3Ccircle cx='150' cy='60' r='6' fill='%23333'/%3E%3Ctext x='150' y='40' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23333'%3E1880s%3C/text%3E%3Ctext x='150' y='85' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%23666'%3EChronophotography%3C/text%3E%3Ccircle cx='300' cy='60' r='6' fill='%23333'/%3E%3Ctext x='300' y='40' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23333'%3E1940s%3C/text%3E%3Ctext x='300' y='85' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%23666'%3EPhoto Finish%3C/text%3E%3Ccircle cx='450' cy='60' r='6' fill='%23333'/%3E%3Ctext x='450' y='40' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23333'%3E1960s%3C/text%3E%3Ctext x='450' y='85' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%23666'%3EFilm Slit-Scan%3C/text%3E%3Ccircle cx='600' cy='60' r='6' fill='%23333'/%3E%3Ctext x='600' y='40' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23333'%3E1990s%3C/text%3E%3Ctext x='600' y='85' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%23666'%3EDigital Adaptation%3C/text%3E%3Ccircle cx='750' cy='60' r='6' fill='%2300c8ff'/%3E%3Ctext x='750' y='40' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%2300c8ff'%3E2010s%3C/text%3E%3Ctext x='750' y='85' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%2300c8ff'%3ERealtime Processing%3C/text%3E%3Ccircle cx='850' cy='60' r='8' fill='%2300c8ff'/%3E%3Ctext x='850' y='40' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%2300c8ff'%3E2025%3C/text%3E%3Ctext x='850' y='85' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%2300c8ff'%3EAdobe Killer%3C/text%3E%3C/svg%3E" alt="Timeline showing the evolution of slit-scan technology from the 1880s to present day">
+                    <figcaption>
+                        Figure 2: The evolution of slit-scan technology from early chronophotography experiments to modern real-time digital implementations.
+                    </figcaption>
+                </figure>
+                
+                <p>
+                    Slit-scan imaging has a rich history that spans over a century of technological development. Its origins can be traced to early chronophotography experiments in the 1880s, where pioneers like Étienne-Jules Marey and Eadweard Muybridge used sequential photography to study motion.
+                </p>
+                
+                <div class="sidenote">
+                    The iconic "stargate sequence" in Stanley Kubrick's <em>2001: A Space Odyssey</em> (1968) was created using analog slit-scan techniques by visual effects artist Douglas Trumbull.
+                </div>
+                
+                <p>
+                    The technique found practical application in the 1940s with the development of photo finish systems for racing events, where a narrow slit camera would record the finish line over time, creating a composite image that precisely captured the order of competitors crossing the line.
+                </p>
+                
+                <p>
+                    The 1960s saw slit-scan techniques adopted in experimental filmmaking and visual effects, most notably in Stanley Kubrick's <em>2001: A Space Odyssey</em>. These applications relied on complex mechanical systems and specialized camera equipment.
+                </p>
+                
+                <p>
+                    With the advent of digital imaging in the 1990s, slit-scan techniques were adapted to the digital realm, allowing for greater flexibility and control. Early digital implementations still required significant post-processing time and computational resources.
+                </p>
+                
+                <p>
+                    The 2010s brought real-time processing capabilities, enabling live slit-scan effects through webcams and mobile devices. These implementations democratized access to the technique but often offered limited control over parameters.
+                </p>
+                
+                <p>
+                    The Adobe Killer Slit-Scan application represents the current state of the art, offering real-time processing with unprecedented parameter control and visualization options, all within an open, browser-based framework that emphasizes technological sovereignty and creative freedom.
+                </p>
+            </section>
+            
+            <section id="core-process">
+                <h2>Core Process: Anatomy of Slit-Scan Imaging</h2>
+                
+                <div class="process-diagram">
+                    <div class="process-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Video Frame Capture</h3>
+                            <figure>
+                                <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='200' viewBox='0 0 600 200'%3E%3Crect width='600' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='120' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EVideo Frame%3C/text%3E%3Cpath d='M300,110 L350,110' stroke='%23333' stroke-width='2' marker-end='url(%23arrow)'/%3E%3Cdefs%3E%3Cmarker id='arrow' markerWidth='10' markerHeight='10' refX='9' refY='3' orient='auto' markerUnits='strokeWidth'%3E%3Cpath d='M0,0 L0,6 L9,3 z' fill='%23333'/%3E%3C/marker%3E%3C/defs%3E%3Crect x='400' y='50' width='150' height='120' fill='%23eee' stroke='%23333'/%3E%3Ctext x='475' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3ENext Frame%3C/text%3E%3C/svg%3E" alt="Video frame capture process">
+                                <figcaption>
+                                    The process begins with capturing sequential video frames from a camera source. In the Adobe Killer application, this is handled through the browser's MediaDevices API.
+                                </figcaption>
+                            </figure>
+                            <div class="marginnote">
+                                The quality and frame rate of the video capture directly impact the temporal resolution of the final slit-scan image. Higher frame rates result in smoother temporal transitions.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Slit Extraction</h3>
+                            <figure>
+                                <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='200' viewBox='0 0 600 200'%3E%3Crect width='600' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='120' fill='%23eee' stroke='%23333'/%3E%3Crect x='140' y='50' width='20' height='120' fill='%2300c8ff' fill-opacity='0.3' stroke='%2300c8ff'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3ESlit Selection%3C/text%3E%3Cpath d='M300,110 L350,110' stroke='%23333' stroke-width='2' marker-end='url(%23arrow)'/%3E%3Cdefs%3E%3Cmarker id='arrow' markerWidth='10' markerHeight='10' refX='9' refY='3' orient='auto' markerUnits='strokeWidth'%3E%3Cpath d='M0,0 L0,6 L9,3 z' fill='%23333'/%3E%3C/marker%3E%3C/defs%3E%3Crect x='400' y='50' width='20' height='120' fill='%2300c8ff' stroke='%2300c8ff'/%3E%3Ctext x='410' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EExtracted Slit%3C/text%3E%3Cpath d='M550,150 L600,150' stroke='%23333' stroke-width='2' stroke-dasharray='5,5'/%3E%3Crect x='600' y='50' width='50' height='120' fill='%23eee' stroke='%23333'/%3E%3Ctext x='625' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3ENext Frame%3C/text%3E%3C/svg%3E" alt="Slit extraction process">
+                                <figcaption>
+                                    A narrow vertical or horizontal slice (the "slit") is extracted from each video frame. The position of this slit can be fixed or moving, depending on the desired effect.
+                                </figcaption>
+                            </figure>
+                            <div class="marginnote">
+                                <code>const slitData = ctx.getImageData(slitX, 0, 1, videoHeight);</code><br>
+                                This simplified code snippet shows how a vertical slit is extracted using the Canvas API.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Data Processing</h3>
+                            <figure>
+                                <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='200' viewBox='0 0 600 200'%3E%3Crect width='600' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='80' width='20' height='120' fill='%23ff00c8' stroke='%23ff00c8' fill-opacity='0.7'/%3E%3Ctext x='60' y='70' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23333'%3ERaw Slit%3C/text%3E%3Cpath d='M100,140 L150,140' stroke='%23333' stroke-width='2' marker-end='url(%23arrow)'/%3E%3Cdefs%3E%3Cmarker id='arrow' markerWidth='10' markerHeight='10' refX='9' refY='3' orient='auto' markerUnits='strokeWidth'%3E%3Cpath d='M0,0 L0,6 L9,3 z' fill='%23333'/%3E%3C/marker%3E%3C/defs%3E%3Crect x='180' y='100' width='100' height='80' rx='10' ry='10' fill='%23eee' stroke='%23333'/%3E%3Ctext x='230' y='140' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23333'%3EProcessing%3C/text%3E%3Cpath d='M310,140 L350,140' stroke='%23333' stroke-width='2' marker-end='url(%23arrow)'/%3E%3Crect x='380' y='80' width='20' height='120' fill='%23ff00c8' stroke='%23ff00c8' fill-opacity='0.7'/%3E%3Ctext x='390' y='70' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23333'%3EProcessed Slit%3C/text%3E%3Cpath d='M180,60 L280,60' stroke='%23666' stroke-width='1'/%3E%3Ctext x='230' y='50' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%23666'%3EParameters%3C/text%3E%3Cpath d='M180,60 L180,100' stroke='%23666' stroke-width='1' stroke-dasharray='3,3'/%3E%3Cpath d='M280,60 L280,100' stroke='%23666' stroke-width='1' stroke-dasharray='3,3'/%3E%3C/svg%3E" alt="Data processing of the extracted slit">
+                                <figcaption>
+                                    The extracted slit data undergoes processing based on user-defined parameters. This may include color transformations, intensity adjustments, and various effects.
+                                </figcaption>
+                            </figure>
+                            <div class="marginnote">
+                                The Adobe Killer application applies HSV color transformations, allowing for precise control over hue, saturation, and value across different visualization modes.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Temporal Accumulation</h3>
+                            <figure>
+                                <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='200' viewBox='0 0 600 200'%3E%3Crect width='600' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='20' height='120' fill='%23ff00c8' stroke='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='80' y='50' width='20' height='120' fill='%23ff00c8' stroke='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='110' y='50' width='20' height='120' fill='%23ff00c8' stroke='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='140' y='50' width='20' height='120' fill='%23ff00c8' stroke='%23ff00c8' fill-opacity='0.7'/%3E%3Ctext x='130' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3ESequential Slits%3C/text%3E%3Cpath d='M200,110 L250,110' stroke='%23333' stroke-width='2' marker-end='url(%23arrow)'/%3E%3Cdefs%3E%3Cmarker id='arrow' markerWidth='10' markerHeight='10' refX='9' refY='3' orient='auto' markerUnits='strokeWidth'%3E%3Cpath d='M0,0 L0,6 L9,3 z' fill='%23333'/%3E%3C/marker%3E%3C/defs%3E%3Crect x='300' y='50' width='250' height='120' fill='%23eee' stroke='%23333'/%3E%3Crect x='300' y='50' width='20' height='120' fill='%23ff00c8' stroke='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='330' y='50' width='20' height='120' fill='%23ff00c8' stroke='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='360' y='50' width='20' height='120' fill='%23ff00c8' stroke='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='390' y='50' width='20' height='120' fill='%23ff00c8' stroke='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='420' y='50' width='20' height='120' fill='%23eee' stroke='%23eee'/%3E%3Crect x='450' y='50' width='20' height='120' fill='%23eee' stroke='%23eee'/%3E%3Crect x='480' y='50' width='20' height='120' fill='%23eee' stroke='%23eee'/%3E%3Crect x='510' y='50' width='20' height='120' fill='%23eee' stroke='%23eee'/%3E%3Ctext x='425' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EComposite Image%3C/text%3E%3C/svg%3E" alt="Temporal accumulation of processed slits">
+                                <figcaption>
+                                    Processed slits are arranged sequentially to form a composite image. Each new slit is added to the right side of the image, creating a time-based visualization that grows horizontally.
+                                </figcaption>
+                            </figure>
+                            <div class="marginnote">
+                                The composite image represents a unique space-time visualization where the horizontal axis represents time and the vertical axis represents spatial information from the original video frames.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h3>Visualization Rendering</h3>
+                            <figure>
+                                <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='200' viewBox='0 0 600 200'%3E%3Crect width='600' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='30' width='150' height='80' fill='%23eee' stroke='%23333'/%3E%3Ctext x='125' y='70' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23333'%3ENormal View%3C/text%3E%3Crect x='50' y='130' width='150' height='40' fill='%23ff00c8' fill-opacity='0.7' stroke='%23ff00c8'/%3E%3Crect x='225' y='30' width='150' height='80' fill='%23eee' stroke='%23333'/%3E%3Ctext x='300' y='70' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23333'%3EWireframe View%3C/text%3E%3Cpath d='M225,50 L375,50' stroke='%23ff00c8' stroke-width='1'/%3E%3Cpath d='M225,70 L375,70' stroke='%23ff00c8' stroke-width='1'/%3E%3Cpath d='M225,90 L375,90' stroke='%23ff00c8' stroke-width='1'/%3E%3Cpath d='M225,110 L375,110' stroke='%23ff00c8' stroke-width='1'/%3E%3Crect x='225' y='130' width='150' height='40' fill='%23ff00c8' fill-opacity='0.2' stroke='%23ff00c8'/%3E%3Cpath d='M225,130 L375,130' stroke='%23ff00c8' stroke-width='1'/%3E%3Cpath d='M225,150 L375,150' stroke='%23ff00c8' stroke-width='1'/%3E%3Cpath d='M225,170 L375,170' stroke='%23ff00c8' stroke-width='1'/%3E%3Crect x='400' y='30' width='150' height='80' fill='%23eee' stroke='%23333'/%3E%3Ctext x='475' y='70' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23333'%3EHeatmap View%3C/text%3E%3Crect x='400' y='130' width='150' height='40' fill='url(%23gradient)' stroke='%23333'/%3E%3Cdefs%3E%3ClinearGradient id='gradient' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' style='stop-color:%23ff0000;stop-opacity:1' /%3E%3Cstop offset='50%25' style='stop-color:%23ffff00;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%2300ff00;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E" alt="Different visualization modes for slit-scan data">
+                                <figcaption>
+                                    The final step involves rendering the processed data using different visualization modes. The Adobe Killer application offers Normal, Wireframe, and Heatmap views, each providing unique insights into the temporal data.
+                                </figcaption>
+                            </figure>
+                            <div class="marginnote">
+                                Each visualization mode applies different rendering techniques to the same underlying data, allowing users to explore different aspects of the temporal patterns.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <p>
+                    This process occurs in real-time within the Adobe Killer application, with each step being executed for every frame of video input. The continuous nature of the process creates a dynamic visualization that evolves as new frames are captured and processed.
+                </p>
+                
+                <div class="sidenote">
+                    The real-time processing capability is achieved through efficient use of the Canvas API and optimized JavaScript code, allowing for smooth performance even on modest hardware.
+                </div>
+                
+                <p>
+                    The modular design of the processing pipeline allows for extensive customization through parameters at each stage, giving users precise control over the final visualization without requiring knowledge of the underlying implementation details.
+                </p>
+            </section>
+            
+            <section id="parameter-effects">
+                <h2>Parameter Effects: Controlling the Visualization</h2>
+                
+                <p>
+                    The Adobe Killer Slit-Scan application provides a comprehensive set of parameters that allow for precise control over the visualization process. These parameters affect different aspects of the slit-scan process, from data capture to rendering.
+                </p>
+                
+                <div class="small-multiples">
+                    <div class="small-multiple">
+                        <figure>
+                            <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='100' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EBase Hue: 0°%3C/text%3E%3Crect x='50' y='50' width='50' height='100' fill='%23ff0000' fill-opacity='0.7'/%3E%3Crect x='100' y='50' width='50' height='100' fill='%23ff0000' fill-opacity='0.7'/%3E%3Crect x='150' y='50' width='50' height='100' fill='%23ff0000' fill-opacity='0.7'/%3E%3Crect x='200' y='50' width='50' height='100' fill='%23ff0000' fill-opacity='0.7'/%3E%3C/svg%3E" alt="Effect of Base Hue parameter set to 0 degrees (red)">
+                            <figcaption>Base Hue: 0° (Red)</figcaption>
+                        </figure>
+                    </div>
+                    
+                    <div class="small-multiple">
+                        <figure>
+                            <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='100' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EBase Hue: 120°%3C/text%3E%3Crect x='50' y='50' width='50' height='100' fill='%2300ff00' fill-opacity='0.7'/%3E%3Crect x='100' y='50' width='50' height='100' fill='%2300ff00' fill-opacity='0.7'/%3E%3Crect x='150' y='50' width='50' height='100' fill='%2300ff00' fill-opacity='0.7'/%3E%3Crect x='200' y='50' width='50' height='100' fill='%2300ff00' fill-opacity='0.7'/%3E%3C/svg%3E" alt="Effect of Base Hue parameter set to 120 degrees (green)">
+                            <figcaption>Base Hue: 120° (Green)</figcaption>
+                        </figure>
+                    </div>
+                    
+                    <div class="small-multiple">
+                        <figure>
+                            <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='100' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EBase Hue: 240°%3C/text%3E%3Crect x='50' y='50' width='50' height='100' fill='%230000ff' fill-opacity='0.7'/%3E%3Crect x='100' y='50' width='50' height='100' fill='%230000ff' fill-opacity='0.7'/%3E%3Crect x='150' y='50' width='50' height='100' fill='%230000ff' fill-opacity='0.7'/%3E%3Crect x='200' y='50' width='50' height='100' fill='%230000ff' fill-opacity='0.7'/%3E%3C/svg%3E" alt="Effect of Base Hue parameter set to 240 degrees (blue)">
+                            <figcaption>Base Hue: 240° (Blue)</figcaption>
+                        </figure>
+                    </div>
+                    
+                    <div class="small-multiple">
+                        <figure>
+                            <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='100' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3ESaturation: 100%25%3C/text%3E%3Crect x='50' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='100' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='150' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='200' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3C/svg%3E" alt="Effect of Saturation parameter set to 100%">
+                            <figcaption>Saturation: 100%</figcaption>
+                        </figure>
+                    </div>
+                    
+                    <div class="small-multiple">
+                        <figure>
+                            <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='100' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3ESaturation: 50%25%3C/text%3E%3Crect x='50' y='50' width='50' height='100' fill='%23ff80e4' fill-opacity='0.7'/%3E%3Crect x='100' y='50' width='50' height='100' fill='%23ff80e4' fill-opacity='0.7'/%3E%3Crect x='150' y='50' width='50' height='100' fill='%23ff80e4' fill-opacity='0.7'/%3E%3Crect x='200' y='50' width='50' height='100' fill='%23ff80e4' fill-opacity='0.7'/%3E%3C/svg%3E" alt="Effect of Saturation parameter set to 50%">
+                            <figcaption>Saturation: 50%</figcaption>
+                        </figure>
+                    </div>
+                    
+                    <div class="small-multiple">
+                        <figure>
+                            <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='100' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3ESaturation: 0%25%3C/text%3E%3Crect x='50' y='50' width='50' height='100' fill='%23c8c8c8' fill-opacity='0.7'/%3E%3Crect x='100' y='50' width='50' height='100' fill='%23c8c8c8' fill-opacity='0.7'/%3E%3Crect x='150' y='50' width='50' height='100' fill='%23c8c8c8' fill-opacity='0.7'/%3E%3Crect x='200' y='50' width='50' height='100' fill='%23c8c8c8' fill-opacity='0.7'/%3E%3C/svg%3E" alt="Effect of Saturation parameter set to 0%">
+                            <figcaption>Saturation: 0%</figcaption>
+                        </figure>
+                    </div>
+                    
+                    <div class="small-multiple">
+                        <figure>
+                            <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='100' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EValue: 100%25%3C/text%3E%3Crect x='50' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='100' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='150' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='200' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3C/svg%3E" alt="Effect of Value parameter set to 100%">
+                            <figcaption>Value: 100%</figcaption>
+                        </figure>
+                    </div>
+                    
+                    <div class="small-multiple">
+                        <figure>
+                            <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='100' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EValue: 50%25%3C/text%3E%3Crect x='50' y='50' width='50' height='100' fill='%23800064' fill-opacity='0.7'/%3E%3Crect x='100' y='50' width='50' height='100' fill='%23800064' fill-opacity='0.7'/%3E%3Crect x='150' y='50' width='50' height='100' fill='%23800064' fill-opacity='0.7'/%3E%3Crect x='200' y='50' width='50' height='100' fill='%23800064' fill-opacity='0.7'/%3E%3C/svg%3E" alt="Effect of Value parameter set to 50%">
+                            <figcaption>Value: 50%</figcaption>
+                        </figure>
+                    </div>
+                    
+                    <div class="small-multiple">
+                        <figure>
+                            <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='100' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EHue Shift: 0°%3C/text%3E%3Crect x='50' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='100' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='150' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='200' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3C/svg%3E" alt="Effect of Hue Shift parameter set to 0 degrees">
+                            <figcaption>Hue Shift: 0°</figcaption>
+                        </figure>
+                    </div>
+                    
+                    <div class="small-multiple">
+                        <figure>
+                            <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='100' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EHue Shift: 180°%3C/text%3E%3Crect x='50' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='100' y='50' width='50' height='100' fill='%2300c8ff' fill-opacity='0.7'/%3E%3Crect x='150' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='200' y='50' width='50' height='100' fill='%2300c8ff' fill-opacity='0.7'/%3E%3C/svg%3E" alt="Effect of Hue Shift parameter set to 180 degrees">
+                            <figcaption>Hue Shift: 180°</figcaption>
+                        </figure>
+                    </div>
+                    
+                    <div class="small-multiple">
+                        <figure>
+                            <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='100' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EHue Shift Mode: Time%3C/text%3E%3Crect x='50' y='50' width='50' height='100' fill='%23ff00c8' fill-opacity='0.7'/%3E%3Crect x='100' y='50' width='50' height='100' fill='%23c800ff' fill-opacity='0.7'/%3E%3Crect x='150' y='50' width='50' height='100' fill='%230000ff' fill-opacity='0.7'/%3E%3Crect x='200' y='50' width='50' height='100' fill='%2300c8ff' fill-opacity='0.7'/%3E%3C/svg%3E" alt="Effect of Hue Shift Mode set to Time">
+                            <figcaption>Hue Shift Mode: Time</figcaption>
+                        </figure>
+                    </div>
+                    
+                    <div class="small-multiple">
+                        <figure>
+                            <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f8f8f8'/%3E%3Crect x='50' y='50' width='200' height='100' fill='%23eee' stroke='%23333'/%3E%3Ctext x='150' y='30' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EHue Shift Mode: Position%3C/text%3E%3Crect x='50' y='50' width='50' height='100' fill='%23ff0000' fill-opacity='0.7'/%3E%3Crect x='100' y='50' width='50' height='100' fill='%23ffff00' fill-opacity='0.7'/%3E%3Crect x='150' y='50' width='50' height='100' fill='%2300ff00' fill-opacity='0.7'/%3E%3Crect x='200' y='50' width='50' height='100' fill='%230000ff' fill-opacity='0.7'/%3E%3C/svg%3E" alt="Effect of Hue Shift Mode set to Position">
+                            <figcaption>Hue Shift Mode: Position</figcaption>
+                        </figure>
+                    </div>
+                </div>
+                
+                <p>
+                    The HSV color model used in the Adobe Killer application provides intuitive control over color transformations. By adjusting these parameters, users can create a wide range of visual effects while maintaining consistent behavior across different visualization modes.
+                </p>
+                
+                <div class="sidenote">
+                    The HSV (Hue, Saturation, Value) color model is particularly well-suited for creative applications as it separates color tone (hue) from intensity (saturation) and brightness (value), allowing for more intuitive adjustments than the RGB model.
+                </div>
+                
+                <h3>Key Color Parameters</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Description</th>
+                            <th>Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Base Hue</td>
+                            <td>Sets the fundamental color tone for the visualization (0-360°)</td>
+                            <td>Determines the primary color of the visualization</td>
+                        </tr>
+                        <tr>
+                            <td>Saturation</td>
+                            <td>Controls the intensity/purity of colors (0-100%)</td>
+                            <td>Affects how vivid or muted the colors appear</td>
+                        </tr>
+                        <tr>
+                            <td>Value</td>
+                            <td>Adjusts the brightness of the visualization (0-100%)</td>
+                            <td>Controls overall lightness or darkness</td>
+                        </tr>
+                        <tr>
+                            <td>Hue Shift</td>
+                            <td>Controls the range of color variation (0-360°)</td>
+                            <td>Creates color gradients and transitions</td>
+                        </tr>
+                        <tr>
+                            <td>Hue Shift Mode</td>
+                            <td>Determines how colors change across the visualization</td>
+                            <td>Affects the pattern of color distribution</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p>
+                    These parameters work in concert to provide a comprehensive color control system that affects all visualization modes consistently. This ensures that color adjustments maintain their character whether viewing in Normal, Wireframe, or Heatmap mode.
+                </p>
+                
+                <div class="sidenote">
+                    The implementation of consistent color controls across all visualization modes was a key enhancement in the Adobe Killer application, addressing previous limitations where color adjustments only affected certain views.
+                </div>
+            </section>
+            
+            <section id="technological-sovereignty">
+                <h2>Technological Sovereignty Implications</h2>
+                
+                <figure class="fullwidth">
+                    <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='300' viewBox='0 0 1000 300'%3E%3Crect width='1000' height='300' fill='%23f8f8f8'/%3E%3Ctext x='500' y='30' text-anchor='middle' font-family='sans-serif' font-size='18' fill='%23333'%3ETechnological Sovereignty Framework%3C/text%3E%3Crect x='100' y='60' width='800' height='200' fill='%23f8f8f8' stroke='%23333' stroke-width='1' stroke-dasharray='5,5'/%3E%3Crect x='150' y='100' width='150' height='120' fill='%23eee' stroke='%23333'/%3E%3Ctext x='225' y='90' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EDigital Autonomy%3C/text%3E%3Ctext x='225' y='160' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23666'%3EOpen Source%3C/text%3E%3Ctext x='225' y='180' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23666'%3EBrowser-Based%3C/text%3E%3Ctext x='225' y='200' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23666'%3ELocal Processing%3C/text%3E%3Crect x='350' y='100' width='150' height='120' fill='%23eee' stroke='%23333'/%3E%3Ctext x='425' y='90' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EKnowledge Sovereignty%3C/text%3E%3Ctext x='425' y='160' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23666'%3ETransparent Code%3C/text%3E%3Ctext x='425' y='180' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23666'%3EEducational Value%3C/text%3E%3Ctext x='425' y='200' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23666'%3EModifiable Design%3C/text%3E%3Crect x='550' y='100' width='150' height='120' fill='%23eee' stroke='%23333'/%3E%3Ctext x='625' y='90' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3ECultural Sovereignty%3C/text%3E%3Ctext x='625' y='160' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23666'%3ECreative Freedom%3C/text%3E%3Ctext x='625' y='180' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23666'%3EAesthetic Control%3C/text%3E%3Ctext x='625' y='200' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23666'%3EExpressive Potential%3C/text%3E%3Crect x='750' y='100' width='150' height='120' fill='%23eee' stroke='%23333'/%3E%3Ctext x='825' y='90' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23333'%3EInfrastructural Sovereignty%3C/text%3E%3Ctext x='825' y='160' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23666'%3ENo Cloud Dependency%3C/text%3E%3Ctext x='825' y='180' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23666'%3ENo Proprietary Formats%3C/text%3E%3Ctext x='825' y='200' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23666'%3ENo Vendor Lock-in%3C/text%3E%3Cline x1='300' y1='160' x2='350' y2='160' stroke='%23333' stroke-width='1' marker-end='url(%23arrow)'/%3E%3Cline x1='500' y1='160' x2='550' y2='160' stroke='%23333' stroke-width='1' marker-end='url(%23arrow)'/%3E%3Cline x1='700' y1='160' x2='750' y2='160' stroke='%23333' stroke-width='1' marker-end='url(%23arrow)'/%3E%3Cdefs%3E%3Cmarker id='arrow' markerWidth='10' markerHeight='10' refX='9' refY='3' orient='auto' markerUnits='strokeWidth'%3E%3Cpath d='M0,0 L0,6 L9,3 z' fill='%23333'/%3E%3C/marker%3E%3C/defs%3E%3C/svg%3E" alt="Technological sovereignty framework showing the relationships between digital autonomy, knowledge sovereignty, cultural sovereignty, and infrastructural sovereignty">
+                    <figcaption>
+                        Figure 3: The four pillars of technological sovereignty as embodied in the Adobe Killer Slit-Scan application. Each component reinforces the others, creating a comprehensive approach to sovereign digital media creation.
+                    </figcaption>
+                </figure>
+                
+                <p>
+                    The Adobe Killer Slit-Scan application represents a significant advancement in technological sovereignty within the realm of digital media creation tools. By examining its design and implementation through the lens of sovereignty, we can identify several key aspects that contribute to digital autonomy and independence.
+                </p>
+                
+                <div class="sidenote">
+                    Technological sovereignty refers to the ability of individuals, communities, or nations to have control over the technological systems they depend on, including the knowledge, skills, and infrastructure required to maintain and modify these systems.
+                </div>
+                
+                <h3>Digital Autonomy</h3>
+                
+                <p>
+                    The application's browser-based implementation ensures that users maintain complete control over their data and creative process. Unlike cloud-based alternatives, all processing occurs locally, with no data being transmitted to external servers. This preserves user privacy and ensures that the creative work remains under the user's control at all times.
+                </p>
+                
+                <div class="marginnote">
+                    <span class="square-notation" style="display: inline-block; width: 1rem; height: 1rem; border: 2px solid var(--accent-color); margin: 0 0.5rem; vertical-align: middle;"></span> The Spencer-Brown notation of a "marked state" represents the distinction between sovereign and non-sovereign technological systems.
+                </div>
+                
+                <p>
+                    The open-source nature of the application allows users to inspect, modify, and distribute the code according to their needs, free from the restrictions imposed by proprietary software licenses. This freedom is essential for true digital autonomy, as it removes dependencies on corporate entities for software updates, feature additions, or bug fixes.
+                </p>
+                
+                <h3>Knowledge Sovereignty</h3>
+                
+                <p>
+                    By providing transparent, readable code with clear documentation, the Adobe Killer application contributes to knowledge sovereignty by demystifying the technical processes involved in slit-scan imaging. Users are not merely consumers of a black-box technology but can understand and learn from the implementation.
+                </p>
+                
+                <p>
+                    The modular design of the application, with clearly separated components for capture, processing, and visualization, facilitates educational use and modification. This approach encourages users to experiment with the code, adapting it to their specific needs and potentially contributing improvements back to the community.
+                </p>
+                
+                <h3>Cultural Sovereignty</h3>
+                
+                <p>
+                    The extensive parameter controls provided by the application enable a wide range of aesthetic expressions, allowing users to develop unique visual languages that reflect their cultural contexts and creative visions. This contrasts with proprietary tools that often impose standardized aesthetics through limited presets and filters.
+                </p>
+                
+                <div class="sidenote">
+                    Cultural sovereignty in digital media tools involves the ability to express cultural identities and aesthetics without being constrained by the design decisions and defaults embedded in proprietary software.
+                </div>
+                
+                <p>
+                    By supporting multiple visualization modes and providing fine-grained control over color transformations, the application empowers users to explore diverse visual traditions and develop new forms of expression that may challenge dominant aesthetic paradigms.
+                </p>
+                
+                <h3>Infrastructural Sovereignty</h3>
+                
+                <p>
+                    The application's design avoids dependencies on proprietary formats, cloud services, or specific hardware configurations. This infrastructural sovereignty ensures that the tool remains accessible and functional regardless of changes in the broader technological ecosystem.
+                </p>
+                
+                <p>
+                    By using standard web technologies (HTML5, JavaScript, Canvas API) rather than proprietary frameworks, the application maintains compatibility with a wide range of devices and operating systems, reducing the risk of obsolescence due to corporate decisions or market shifts.
+                </p>
+                
+                <div class="marginnote">
+                    <span class="arrow-notation" style="display: inline-block; width: 1rem; height: 1rem; margin: 0 0.5rem; position: relative; vertical-align: middle;"><span style="position: absolute; top: -0.25rem; left: 0; color: var(--secondary-color);">→</span></span> The directional flow from digital autonomy through knowledge and cultural sovereignty to infrastructural sovereignty represents the syntagmatic relationship between these concepts.
+                </div>
+                
+                <h3>Syntagmatic Relationships</h3>
+                
+                <p>
+                    The four aspects of technological sovereignty described above do not exist in isolation but form a syntagmatic sequence, where each reinforces and enables the others. Digital autonomy provides the foundation for knowledge sovereignty, which in turn enables cultural sovereignty, all supported by infrastructural sovereignty.
+                </p>
+                
+                <p>
+                    This holistic approach to technological sovereignty in the Adobe Killer application demonstrates how creative tools can be designed to empower users rather than restrict them, contributing to a more diverse and independent digital media landscape.
+                </p>
+            </section>
+            
+            <section id="conclusion">
+                <h2>Conclusion</h2>
+                
+                <p>
+                    The Adobe Killer Slit-Scan application represents a significant advancement in both the technical capabilities and sovereignty implications of digital media creation tools. By combining powerful real-time processing with an open, accessible implementation, it demonstrates how complex visual effects can be democratized without sacrificing control or quality.
+                </p>
+                
+                <p>
+                    The application's comprehensive color control system, which works consistently across all visualization modes, provides users with unprecedented creative flexibility while maintaining intuitive operation. This approach to parameter design balances power with accessibility, allowing both novice and experienced users to achieve their desired results.
+                </p>
+                
+                <p>
+                    From a technological sovereignty perspective, the application serves as a model for how creative tools can be designed to empower rather than restrict users. By prioritizing local processing, open-source implementation, educational value, and standard technologies, it contributes to a more diverse and independent digital media ecosystem.
+                </p>
+                
+                <p>
+                    As digital media creation continues to evolve, the principles embodied in the Adobe Killer Slit-Scan application—technical excellence, user empowerment, and technological sovereignty—provide a valuable framework for developing tools that serve the needs of creators rather than corporate interests.
+                </p>
+            </section>
+        </article>
+    </div>
+</body>
+</html>
